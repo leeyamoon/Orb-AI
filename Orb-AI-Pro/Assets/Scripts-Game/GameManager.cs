@@ -3,6 +3,7 @@ using System.Collections;
 using Cinemachine;
 using DG.Tweening;
 using MyBox;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -27,11 +28,18 @@ public class GameManager : MonoBehaviour
     [SerializeField] private PlayerDissolve playerDissolve;
     [SerializeField, MinValue(0), MaxValue(2f)] private float delayBeforeReverseDissolve = 1f;
 
+    [Header("TextFields"), SerializeField] private TextMeshProUGUI winText;
+    [SerializeField] private TextMeshProUGUI lostText;
+
     private int _stageNumber = 0;
     private int spawnPointIndex = 0;
     private Transform prevPoint;
     public bool _isRespawning = false;
     private soundManager _soundManager;
+    
+    private static int _winAmount = 0;
+    private static int _lostAmount = 0;
+    
 
     private void Awake()
     {
@@ -87,6 +95,10 @@ public class GameManager : MonoBehaviour
         _isRespawning = true;
         ball.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         playerDissolve.Dissolve();
+        //New For AI
+        _lostAmount++;
+        UpdateTextFields();
+        //End New For AI
         ball.transform.DOMove(savePoints[spawnPointIndex].position, respawnTime)
             .OnComplete(() =>
             {
@@ -124,5 +136,23 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
         fadeScreen.gameObject.SetActive(false);
+    }
+
+    public void IncreaseLost()
+    {
+        _lostAmount++;
+        UpdateTextFields();
+    }
+
+    public void IncreaseWon()
+    {
+        _winAmount++;
+        UpdateTextFields();
+    }
+
+    private void UpdateTextFields()
+    {
+        winText.text = "Won: " + _winAmount.ToString();
+        lostText.text = "Lost: " + _lostAmount.ToString();
     }
 }

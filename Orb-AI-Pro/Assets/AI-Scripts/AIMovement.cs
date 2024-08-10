@@ -108,7 +108,13 @@ public class AIMovement : MonoBehaviour
         while (true)
         {
             yield return new WaitWhile(() => isChangingSize);
-            ResizeAndMove(XMovement.Right, YMovement.Up);
+            //TODO add code transform.position
+            if(Input.GetMouseButton(0))
+                ResizeAndMove(XMovement.Left, YMovement.Down);
+            else
+            {
+                ResizeAndMove(XMovement.Right, YMovement.Up);
+            }
             yield return new WaitForSeconds(iterationTime);
         }
     }
@@ -192,6 +198,7 @@ public class AIMovement : MonoBehaviour
     
     
     private void NewAxisMovement(XMovement stateX)
+    /* Movement on X axis*/
     {
         float speedScale;
         switch (stateX)
@@ -208,7 +215,6 @@ public class AIMovement : MonoBehaviour
         }
         float horizontalSpeed = _horizontalSpeed * speedScale;
         _moveHorizontal = horizontalSpeed;
-        print(_moveHorizontal);
     }
 
     #region Audio
