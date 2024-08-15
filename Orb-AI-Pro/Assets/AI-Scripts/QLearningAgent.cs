@@ -75,7 +75,7 @@ public class QLearningAgent
         return bestAction;
     }
 
-    public object GetAction(State state)
+    public Action GetAction(State state)
     {
         var legalActions = GetLegalActions(state);
         if (legalActions.Count == 0)

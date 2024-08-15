@@ -57,7 +57,6 @@ public class AIMovement : MonoBehaviour
     private bool shouldAllowMovement = false;
     private float _lastTimeTouchedWall = 0f;
     private soundManager _soundManager;
-    QLearningAgent _qAgent = new QLearningAgent(0.1, 0.1, 0.9);
 
     
     
@@ -109,11 +108,13 @@ public class AIMovement : MonoBehaviour
 
     private IEnumerator AIUpdate()
     {
+        QLearningAgent qAgent = new QLearningAgent(0.1, 0.1, 0.9);
+        // load qValue dict from disk
         while (true)
         {
             yield return new WaitWhile(() => isChangingSize);
             //TODO add code transform.position
-            q_learning_Step()
+            q_learning_Step(qAgent)
             
             if(Input.GetMouseButton(0))
                 ResizeAndMove(XMovement.Left, YMovement.Down);
@@ -123,6 +124,7 @@ public class AIMovement : MonoBehaviour
             }
             yield return new WaitForSeconds(iterationTime);
         }
+        // update qValue dict
     }
 
     private void get_step()
@@ -173,14 +175,24 @@ public class AIMovement : MonoBehaviour
         return new State(newPosX, newPosY);
     }
 
-    private void q_learning_Step()
+    private void q_learning_Step(QLearningAgent agent)
     {
-        state = get_state()
-        action = _qAgent.GetAction()
-        next_state = GetNextState(state, action)
-        
-        chosen_action = get_best_action(state, actions)
-        
+        Satate state = get_state();
+        Action action = agent.GetAction();
+        State next_state = GetNextState(state, action);
+        float reward = get_reward_from_state(next_state);
+        agent.update(state, action, next_state, reward);
+    }
+
+    private void q_learning_epispde(QLearningAgent agent)
+    {
+        float total_reward = 0;
+        float total_discount = 1;
+        while (true)
+        {
+            total_reward = total_reward + q_learning_Step(agent) * total_discount;
+            total_discount = total_discount * agent.discount;
+        }
     }
 
     private void FixedUpdate()
