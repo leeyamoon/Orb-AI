@@ -4,16 +4,28 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-struct State
+public struct State
 {
     public float posX;
     public float posY;
+
+    public State(float posX, float posY)
+    {
+        this.posX = posX;
+        this.posY = posY;
+    }
 }
 
-struct Action
+public struct Action
 {
     public XMovement moveX;
     public YMovement moveY;
+
+    public Action(XMovement moveX, YMovement moveY)
+    {
+        this.moveX = moveX;
+        this.moveY = moveY;
+    }
 }
 
 public class QLearningAgent
@@ -31,7 +43,7 @@ public class QLearningAgent
         this.qValues = new Dictionary<(State, Action), double>();
     }
 
-    public double GetQValue(State state, object action)
+    public double GetQValue(State state, Action action)
     {
         var key = (state, action);
         return qValues.ContainsKey(key) ? qValues[key] : 0.0;
@@ -79,7 +91,7 @@ public class QLearningAgent
         return GetPolicy(state);
     }
 
-    public void Update(State state, object action, State nextState, double reward)
+    public void Update(State state, Action action, State nextState, double reward)
     {
         var key = (state, action);
         var currentQValue = GetQValue(state, action);
@@ -89,8 +101,18 @@ public class QLearningAgent
 
     private List<object> GetLegalActions(State state)
     {
-        // You should implement this function based on your environment
-        return new List<object>();
+        List<Action> legal_actions = new List<Action>();
+        var x_movemoent = Enum.GetValues<XMovement>();
+        var y_movemoent = Enum.GetValues<YMovement>();
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < 3; j++)
+            {
+                var action = Action((x_movemoent)i, (y_movemoent)j);
+                legal_actions.Add(action);
+            }
+        }
+        return legal_actions;
     }
 }
 
