@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 
+
 public class AIMovement : MonoBehaviour
 {
     enum XMovement
@@ -56,6 +57,8 @@ public class AIMovement : MonoBehaviour
     private bool shouldAllowMovement = false;
     private float _lastTimeTouchedWall = 0f;
     private soundManager _soundManager;
+    QLearningAgent _qAgent = new QLearningAgent(0.1, 0.1, 0.9);
+
     
     
     private void Awake()
@@ -63,6 +66,7 @@ public class AIMovement : MonoBehaviour
         _rigidbody = GetComponent<Rigidbody2D>();
         _mainCam = Camera.main;
         _soundManager = GameObject.FindGameObjectWithTag(AUDIO_TAG).GetComponent<soundManager>();
+        
     }
     
     private void Start()
@@ -109,6 +113,8 @@ public class AIMovement : MonoBehaviour
         {
             yield return new WaitWhile(() => isChangingSize);
             //TODO add code transform.position
+            q_learning_Step()
+            
             if(Input.GetMouseButton(0))
                 ResizeAndMove(XMovement.Left, YMovement.Down);
             else
@@ -117,6 +123,64 @@ public class AIMovement : MonoBehaviour
             }
             yield return new WaitForSeconds(iterationTime);
         }
+    }
+
+    private void get_step()
+    {
+        Vector3 objectPosition = transform.position;
+        float x = objectPosition.x;
+        float y = objectPosition.y;
+        state = new State(x, y)
+            
+            return state
+
+    }
+    
+    // Define the function that takes a state and an action and returns the next state
+    public State GetNextState(State currentState, Action action)
+    {
+        // Calculate the new X position based on the XMovement action
+        float newPosX = currentState.posX;
+        switch (action.moveX)
+        {
+            case XMovement.Left:
+                newPosX -= 1f; // Adjust the value to match your movement logic
+                break;
+            case XMovement.Right:
+                newPosX += 1f; // Adjust the value to match your movement logic
+                break;
+            case XMovement.Mid:
+                // No change to X position
+                break;
+        }
+
+        // Calculate the new Y position based on the YMovement action
+        float newPosY = currentState.posY;
+        switch (action.moveY)
+        {
+            case YMovement.Up:
+                newPosY += 1f; // Adjust the value to match your movement logic
+                break;
+            case YMovement.Down:
+                newPosY -= 1f; // Adjust the value to match your movement logic
+                break;
+            case YMovement.Mid:
+                // No change to Y position
+                break;
+        }
+
+        // Return the new state with updated positions
+        return new State(newPosX, newPosY);
+    }
+
+    private void q_learning_Step()
+    {
+        state = get_state()
+        action = _qAgent.GetAction()
+        next_state = GetNextState(state, action)
+        
+        chosen_action = get_best_action(state, actions)
+        
     }
 
     private void FixedUpdate()
