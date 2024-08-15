@@ -7,12 +7,12 @@ using UnityEngine;
 
 public class AIMovement : MonoBehaviour
 {
-    enum XMovement
+    public enum XMovement
     {
         Left, Mid, Right
     }
 
-    enum YMovement
+    public enum YMovement
     {
         Up, Mid, Down
     }
@@ -114,7 +114,7 @@ public class AIMovement : MonoBehaviour
         {
             yield return new WaitWhile(() => isChangingSize);
             //TODO add code transform.position
-            q_learning_Step(qAgent)
+            q_learning_Step(qAgent);
             
             if(Input.GetMouseButton(0))
                 ResizeAndMove(XMovement.Left, YMovement.Down);
@@ -132,14 +132,13 @@ public class AIMovement : MonoBehaviour
         Vector3 objectPosition = transform.position;
         float x = objectPosition.x;
         float y = objectPosition.y;
-        state = new State(x, y)
-            
-            return state
+        state = new QLearningAgent.State(x, y);
+        return state;
 
     }
     
     // Define the function that takes a state and an action and returns the next state
-    public State GetNextState(State currentState, Action action)
+    public QLearningAgent.State GetNextState(QLearningAgent.State currentState, Action action)
     {
         // Calculate the new X position based on the XMovement action
         float newPosX = currentState.posX;
@@ -177,9 +176,9 @@ public class AIMovement : MonoBehaviour
 
     private void q_learning_Step(QLearningAgent agent)
     {
-        Satate state = get_state();
+        QLearningAgent.State state = get_state();
         Action action = agent.GetAction();
-        State next_state = GetNextState(state, action);
+        QLearningAgent.State next_state = GetNextState(state, action);
         float reward = get_reward_from_state(next_state);
         agent.update(state, action, next_state, reward);
     }
