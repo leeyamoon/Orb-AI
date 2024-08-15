@@ -186,7 +186,7 @@ public class AIMovement : MonoBehaviour
 
     private float get_reward_from_state(State state)
     {
-        return 0.
+        return 0;
     }
 
     private void FixedUpdate()
