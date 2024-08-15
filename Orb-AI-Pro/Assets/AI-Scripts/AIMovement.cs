@@ -184,15 +184,9 @@ public class AIMovement : MonoBehaviour
         agent.update(state, action, next_state, reward);
     }
 
-    private void q_learning_epispde(QLearningAgent agent)
+    private float get_reward_from_state(State state)
     {
-        float total_reward = 0;
-        float total_discount = 1;
-        while (true)
-        {
-            total_reward = total_reward + q_learning_Step(agent) * total_discount;
-            total_discount = total_discount * agent.discount;
-        }
+        return 0.
     }
 
     private void FixedUpdate()
