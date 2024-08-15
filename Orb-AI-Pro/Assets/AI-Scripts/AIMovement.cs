@@ -132,13 +132,13 @@ public class AIMovement : MonoBehaviour
         Vector3 objectPosition = transform.position;
         float x = objectPosition.x;
         float y = objectPosition.y;
-        state = new QLearningAgent.State(x, y);
+        state = new PlayerState(x, y);
         return state;
 
     }
     
     // Define the function that takes a state and an action and returns the next state
-    public QLearningAgent.State GetNextState(QLearningAgent.State currentState, Action action)
+    public PlayerState GetNextState(PlayerState currentState, PlayerAction action)
     {
         // Calculate the new X position based on the XMovement action
         float newPosX = currentState.posX;
@@ -171,19 +171,19 @@ public class AIMovement : MonoBehaviour
         }
 
         // Return the new state with updated positions
-        return new State(newPosX, newPosY);
+        return new PlayerState(newPosX, newPosY);
     }
 
     private void q_learning_Step(QLearningAgent agent)
     {
-        QLearningAgent.State state = get_state();
-        Action action = agent.GetAction();
-        QLearningAgent.State next_state = GetNextState(state, action);
+        PlayerState state = get_state();
+        PlayerAction action = agent.GetAction();
+        PlayerState next_state = GetNextState(state, action);
         float reward = get_reward_from_state(next_state);
         agent.update(state, action, next_state, reward);
     }
 
-    private float get_reward_from_state(State state)
+    private float get_reward_from_state(PlayerState state)
     {
         return 0;
     }
