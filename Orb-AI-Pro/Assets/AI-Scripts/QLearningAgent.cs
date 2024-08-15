@@ -3,6 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
+using System.Text.Json; 
 
 public struct State
 {
@@ -114,6 +116,28 @@ public class QLearningAgent
             }
         }
         return legal_actions;
+    }
+
+    public void load_qvalue_dict()
+    {
+        string file_path = "dictionary.json";
+        if (File.Exists(file_path))
+        {
+            // Serialize the dictionary to a JSON string
+            string jsonString = JsonSerializer.Serialize(dictionary);
+            
+            // Write the JSON string to a file
+            File.WriteAllText(file_path, jsonString);
+        }
+    }
+
+    public void save_qvalue_dict()
+    {
+        // Read the JSON string from the file
+        string jsonString = File.ReadAllText("dictionary.json");
+
+        // Deserialize the JSON string back to a dictionary
+        this.qValues = JsonSerializer.Deserialize<Dictionary<string, int>>(jsonString);
     }
 }
 

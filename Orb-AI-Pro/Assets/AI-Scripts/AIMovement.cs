@@ -109,7 +109,7 @@ public class AIMovement : MonoBehaviour
     private IEnumerator AIUpdate()
     {
         QLearningAgent qAgent = new QLearningAgent(0.1, 0.1, 0.9);
-        // load qValue dict from disk
+        qAgent.load_qvalue_dict();
         while (true)
         {
             yield return new WaitWhile(() => isChangingSize);
@@ -124,7 +124,7 @@ public class AIMovement : MonoBehaviour
             }
             yield return new WaitForSeconds(iterationTime);
         }
-        // update qValue dict
+        qAgent.save_qvalue_dict();
     }
 
     private void get_step()
