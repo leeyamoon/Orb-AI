@@ -125,7 +125,6 @@ public class QLearningAgent
                 bestAction = curAction;
             }
         }
-        Debug.Log(bestAction.moveX + ", " + bestAction.moveY);
         return bestAction;
     }
 

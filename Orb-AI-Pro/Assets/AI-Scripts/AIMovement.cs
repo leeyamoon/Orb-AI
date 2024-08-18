@@ -181,10 +181,9 @@ public class AIMovement : MonoBehaviour
     private void q_learning_Step(QLearningAgent agent)
     {
         PlayerState state = get_state();
-        print(state.posX + ", " + state.posY);
         PlayerAction action = agent.GetAction(state);
         PlayerState next_state = GetNextState(state, action);
-        float reward = RewardBehavior.Shared().SimpleReward(next_state);
+        float reward = RewardBehavior.Shared().TotalReward();
         agent.update(state, action, next_state, reward);
         ResizeAndMove(action.moveX, action.moveY);
     }

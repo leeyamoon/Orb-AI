@@ -7,10 +7,11 @@ using UnityEngine;
 public class RewardBehavior : MonoBehaviour
 {
     [SerializeField] private Transform playerTrans;
-    [SerializeField] private Transform goalTrans;
+    [SerializeField] private Transform[] allGoalsTransform;
 
     private static RewardBehavior _self;
-    private float _initDist;
+    private float betweenPath;
+    private int _curIndex;
 
     private void Awake()
     {
@@ -20,8 +21,8 @@ public class RewardBehavior : MonoBehaviour
 
     private void Start()
     {
-        _initDist = Vector2.Distance(playerTrans.position, goalTrans.position);
-        
+        _curIndex = 0;
+
     }
 
     public static RewardBehavior Shared()
@@ -31,14 +32,37 @@ public class RewardBehavior : MonoBehaviour
 
     public Vector2 GetGoalPosition()
     {
-        return goalTrans.position;
+        return allGoalsTransform[_curIndex].position;
     }
 
-    public float SimpleReward(PlayerState state)
+    private float SimpleReward()
     {
-        var dist = Vector2.Distance(playerTrans.position, goalTrans.position);
+        var dist = Vector2.Distance(playerTrans.position, allGoalsTransform[_curIndex].position);
         var reward =  100 * math.exp(-dist/20);
-        //print(reward);
         return reward;
     }
+
+    private float pathReward()
+    {
+        float pathReward = 0;
+        for (int i = _curIndex + 1; i < allGoalsTransform.Length - 1; i++)
+        {
+            pathReward -= 10;
+        }
+
+        return pathReward;
+    }
+
+    public void IndexUp()
+    {
+        _curIndex++;
+    }
+
+    public float TotalReward()
+    {
+        
+        return pathReward() + SimpleReward();
+    }
+    
+    
 }
