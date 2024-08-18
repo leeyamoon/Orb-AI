@@ -41,8 +41,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  minGravity: -6
-  maxGravity: 12
+  minGravity: -10
+  maxGravity: 10
   changeWithScroller: 25
   scaleSpeed: 5
   yAxisForceAmount: 200

@@ -57,6 +57,12 @@ public class AIMovement : MonoBehaviour
     private bool shouldAllowMovement = false;
     private float _lastTimeTouchedWall = 0f;
     private soundManager _soundManager;
+    private static AIMovement _self;
+
+    [Header("QLearn parameters"), SerializeField, Range(0f,1f)]
+    private float epsilon;
+    [SerializeField, Range(0f,10f)] private float alpha;
+    [SerializeField, Range(0f,1f)] private float discount;
 
     
     
@@ -65,7 +71,13 @@ public class AIMovement : MonoBehaviour
         _rigidbody = GetComponent<Rigidbody2D>();
         _mainCam = Camera.main;
         _soundManager = GameObject.FindGameObjectWithTag(AUDIO_TAG).GetComponent<soundManager>();
-        
+        if (_self == null)
+            _self = this;
+    }
+
+    public static AIMovement Shared()
+    {
+        return _self;
     }
     
     private void Start()
@@ -73,7 +85,6 @@ public class AIMovement : MonoBehaviour
         _balloonSizeCur = 1;
         _goalBalloonSize = _balloonSizeCur;
         _lastTimeTouchedWall = Time.time;
-        print("Cor");
         StartCoroutine(AIUpdate());
     }
 
@@ -108,31 +119,24 @@ public class AIMovement : MonoBehaviour
 
     private IEnumerator AIUpdate()
     {
-        QLearningAgent qAgent = new QLearningAgent(0.1, 0.1, 0.9);
-        qAgent.load_qvalue_dict();
+        QLearningAgent qAgent = new QLearningAgent(epsilon, alpha, discount);
+        //qAgent.load_qvalue_dict();
         while (true)
         {
             yield return new WaitWhile(() => isChangingSize);
             //TODO add code transform.position
             q_learning_Step(qAgent);
-            
-            if(Input.GetMouseButton(0))
-                ResizeAndMove(XMovement.Left, YMovement.Down);
-            else
-            {
-                ResizeAndMove(XMovement.Right, YMovement.Up);
-            }
             yield return new WaitForSeconds(iterationTime);
         }
-        qAgent.save_qvalue_dict();
+        //qAgent.save_qvalue_dict();
     }
 
-    private void get_step()
+    private PlayerState get_state()
     {
         Vector3 objectPosition = transform.position;
         float x = objectPosition.x;
         float y = objectPosition.y;
-        state = new PlayerState(x, y);
+        PlayerState state = new PlayerState(x, y);
         return state;
 
     }
@@ -141,14 +145,14 @@ public class AIMovement : MonoBehaviour
     public PlayerState GetNextState(PlayerState currentState, PlayerAction action)
     {
         // Calculate the new X position based on the XMovement action
-        float newPosX = currentState.posX;
+        int newPosX = currentState.posX;
         switch (action.moveX)
         {
             case XMovement.Left:
-                newPosX -= 1f; // Adjust the value to match your movement logic
+                newPosX -= 1; // Adjust the value to match your movement logic
                 break;
             case XMovement.Right:
-                newPosX += 1f; // Adjust the value to match your movement logic
+                newPosX += 1; // Adjust the value to match your movement logic
                 break;
             case XMovement.Mid:
                 // No change to X position
@@ -156,14 +160,14 @@ public class AIMovement : MonoBehaviour
         }
 
         // Calculate the new Y position based on the YMovement action
-        float newPosY = currentState.posY;
+        int newPosY = currentState.posY;
         switch (action.moveY)
         {
             case YMovement.Up:
-                newPosY += 1f; // Adjust the value to match your movement logic
+                newPosY += 1; // Adjust the value to match your movement logic
                 break;
             case YMovement.Down:
-                newPosY -= 1f; // Adjust the value to match your movement logic
+                newPosY -= 1; // Adjust the value to match your movement logic
                 break;
             case YMovement.Mid:
                 // No change to Y position
@@ -177,16 +181,14 @@ public class AIMovement : MonoBehaviour
     private void q_learning_Step(QLearningAgent agent)
     {
         PlayerState state = get_state();
-        PlayerAction action = agent.GetAction();
+        print(state.posX + ", " + state.posY);
+        PlayerAction action = agent.GetAction(state);
         PlayerState next_state = GetNextState(state, action);
-        float reward = get_reward_from_state(next_state);
+        float reward = RewardBehavior.Shared().SimpleReward(next_state);
         agent.update(state, action, next_state, reward);
+        ResizeAndMove(action.moveX, action.moveY);
     }
-
-    private float get_reward_from_state(PlayerState state)
-    {
-        return 0;
-    }
+    
 
     private void FixedUpdate()
     {
