@@ -112,9 +112,6 @@ public class QLearningAgent
     public PlayerAction GetPolicy(PlayerState state)
     {
         var legalActions = GetLegalActions(state);
-        // var bestAction = legalActions
-        //     .OrderByDescending(action => GetQValue(state, action))
-        //     .FirstOrDefault();
         var bestAction = legalActions[0];
         double bestScore = GetQValue(state, legalActions[0]);
         foreach (var curAction in legalActions)
@@ -141,10 +138,9 @@ public class QLearningAgent
 
     public void update(PlayerState state, PlayerAction action, PlayerState nextState, double reward)
     {
-        var key = (state, action);
         var currentQValue = GetQValue(state, action);
         var nextValue = GetValue(nextState);
-        //qValues[key] = currentQValue + alpha * (reward + discount * nextValue - currentQValue);
+        qValues[StateToString(state, action)] = currentQValue + alpha * (reward + discount * nextValue - currentQValue);
         
     }
 
