@@ -5,7 +5,7 @@ using DG.Tweening;
 using UnityEngine;
 
 
-public class AIMovement : MonoBehaviour
+public class AIMovement : MovementParent
 {
     public enum XMovement
     {
@@ -24,33 +24,13 @@ public class AIMovement : MonoBehaviour
     private const float THRESHOLD_FOR_INITIAL_MOVEMENT = 10f;
 
     [SerializeField] private float iterationTime;
-
-    #region Balloon properties
-        private float _verticalSpeed;
-        private float _horizontalSpeed;
-        private float _minBalloonSize;
-        private float _maxBalloonSize;
-        private float _sizeChangeSpeed;
-        private AnimationCurve _gravityCurve;
-        private float _minGravity;
-        private float _maxGravity; 
-        private float _changeWithScroller;
-        private float _scaleSpeed;
-        private float _moveHorizontal;
-        private float _moveVertical;
-        private float _balloonSizeCur;
-        private float _yAxisForceAmount;
-        private float _minForceAmount; 
-    #endregion
+    
     private Camera _mainCam;
     private Rigidbody2D _rigidbody;
     
-    private float _gravityRange;
     private float _forceRange;
 
     private float _curGravity;
-
-    private bool isChangingSize = false;
 
     private float _goalBalloonSize;
     private float _totalMouseMovementX;
@@ -87,28 +67,7 @@ public class AIMovement : MonoBehaviour
         _lastTimeTouchedWall = Time.time;
         StartCoroutine(AIUpdate());
     }
-
-    public void SetStage(StageProperties stage)
-    {
-        ChangeBalloonSizeOverTime(stage.minSize);
-        AdvanceToStage(stage);
-    }
-
-    public void AdvanceToStage(StageProperties stage)
-    {
-        _minBalloonSize = stage.minSize;
-        _maxBalloonSize = stage.maxSize;
-        _verticalSpeed = stage.verticalSpeed;
-        _horizontalSpeed = stage.horizontalSpeed;
-        _maxGravity = stage.maxGravity;
-        _minGravity = stage.minGravity;
-        _gravityRange = _maxGravity - _minGravity;
-        _scaleSpeed = stage.scaleSpeed;
-        _changeWithScroller = stage.changeWithScroller;
-        _gravityCurve = stage.gravityCurve;
-        _yAxisForceAmount = stage.yAxisForceAmount;
-        _minForceAmount = stage.minForceAmount;
-    }
+    
 
     private void Update()
     {
@@ -241,29 +200,11 @@ public class AIMovement : MonoBehaviour
         ChangeBalloonSizeAI(stateY);
         NewAxisMovement(stateX);
     }
-
-    private void ChangeBalloonSizeOverTime(float size)
-    {
-        isChangingSize = true;
-        Vector3 targetScale = new Vector3(size, size, size);
-        transform.DOScale(targetScale, 1f).SetEase(Ease.InOutQuad).
-            OnComplete(()=>OnScaleComplete(size));
-    }
-
-    private void OnScaleComplete(float size)
-    {
-        _balloonSizeCur = size;
-        isChangingSize = false;
-    }
+    
 
     public float GetBalloonSize()
     {
         return _balloonSizeCur;
-    }
-
-    public void SetBalloonSize(float size)
-    {
-        _balloonSizeCur = size;
     }
     
     

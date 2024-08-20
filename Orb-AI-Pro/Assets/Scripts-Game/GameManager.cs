@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour
     
     [SerializeField] private StageProperties[] stages;
     [SerializeField] private Transform[] savePoints;
-    [SerializeField] private AIMovement ball;
+    [SerializeField] private MovementParent ball;
     [SerializeField] private float respawnTime = 1f;
     [SerializeField] private CursorBehavior cursorBehavior;
     [SerializeField] private CinemachineVirtualCamera staticCamera;
