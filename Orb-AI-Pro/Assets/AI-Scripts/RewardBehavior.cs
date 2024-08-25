@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -8,8 +9,11 @@ public class RewardBehavior : MonoBehaviour
 {
     [SerializeField] private Transform playerTrans;
     [SerializeField] private Transform[] allGoalsTransform;
+    [SerializeField] private Collider2D[] allToxics;
+    
 
     private static RewardBehavior _self;
+    private Collider2D _playerCollider;
     private float betweenPath;
     private int _curIndex;
 
@@ -17,6 +21,7 @@ public class RewardBehavior : MonoBehaviour
     {
         if (_self == null)
             _self = this;
+        _playerCollider = playerTrans.gameObject.GetComponent<Collider2D>();
     }
 
     private void Start()
@@ -53,6 +58,14 @@ public class RewardBehavior : MonoBehaviour
         return pathReward;
     }
 
+    private float LossToxic()
+    {
+        var minColDist = allToxics.Min(x => x.Distance(_playerCollider));
+        float minDist = minColDist.distance;
+        print(minDist);
+        return 50 * math.exp(-minDist/20);
+    }
+
     public void IndexUp()
     {
         _curIndex++;
@@ -61,7 +74,7 @@ public class RewardBehavior : MonoBehaviour
     public float TotalReward()
     {
         
-        return pathReward() + SimpleReward();
+        return pathReward() + SimpleReward() - LossToxic();
     }
     
     

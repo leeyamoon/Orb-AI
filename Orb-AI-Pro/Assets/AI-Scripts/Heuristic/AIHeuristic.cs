@@ -38,7 +38,9 @@ public class AIHeuristic : MovementParent
     private float _lastTimeTouchedWall = 0f;
     private soundManager _soundManager;
     private static AIHeuristic _self;
-
+    
+    // HERE HEURISTIC
+    [Header("Heuristic"), SerializeField] private GridLayout grid;
 
 
     private void Awake()
@@ -60,7 +62,13 @@ public class AIHeuristic : MovementParent
         _balloonSizeCur = 1;
         _goalBalloonSize = _balloonSizeCur;
         _lastTimeTouchedWall = Time.time;
+        PreScan();
         StartCoroutine(AIUpdate());
+    }
+
+    private void PreScan()
+    {
+        //TODO ADD
     }
     
     
@@ -76,20 +84,15 @@ public class AIHeuristic : MovementParent
         while (true)
         {
             yield return new WaitWhile(() => isChangingSize);
-            //TODO add heuristic
-            ResizeAndMove(XMovement.Left, YMovement.Up);
+            var move = GetHeuristicMove();
+            ResizeAndMove(move.Item1, move.Item2);
             yield return new WaitForSeconds(iterationTime);
         }
     }
 
-    private PlayerState get_state()
+    private (XMovement, YMovement) GetHeuristicMove()
     {
-        Vector3 objectPosition = transform.position;
-        float x = objectPosition.x;
-        float y = objectPosition.y;
-        PlayerState state = new PlayerState(x, y);
-        return state;
-
+        return (XMovement.Left, YMovement.Up);
     }
 
     private void FixedUpdate()
@@ -144,14 +147,8 @@ public class AIHeuristic : MovementParent
         ChangeBalloonSizeAI(stateY);
         NewAxisMovement(stateX);
     }
-    
 
-    public float GetBalloonSize()
-    {
-        return _balloonSizeCur;
-    }
 
-    
     private void NewAxisMovement(XMovement stateX)
     /* Movement on X axis*/
     {

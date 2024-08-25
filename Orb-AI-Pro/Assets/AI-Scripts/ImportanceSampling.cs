@@ -5,7 +5,7 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 
-public class ImportanceSampling : MonoBehaviour
+public class ImportanceSampling
 {
     private double epsilon;
     private double discount;
@@ -18,18 +18,7 @@ public class ImportanceSampling : MonoBehaviour
         qValues = new Dictionary<string, double>();
         weightDict = new Dictionary<string, double>();
     }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    
 
     public List<(PlayerState, PlayerAction, double)> GenerateEpisode(int episode_size, PlayerState start_state)
     {

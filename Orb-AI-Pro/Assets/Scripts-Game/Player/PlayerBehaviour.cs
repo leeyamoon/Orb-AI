@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 
-public class PlayerBehaviour : MonoBehaviour
+public class PlayerBehaviour : MovementParent
 {
     private const float EPSILON = 0.1f;
     private const string MOUSE_Y = "Mouse Y";
@@ -14,32 +14,14 @@ public class PlayerBehaviour : MonoBehaviour
     private const string BOING = "Boing";
     private const float THRESHOLD_FOR_INITIAL_MOVEMENT = 10f; 
 
-    #region Balloon properties
-        private float _verticalSpeed;
-        private float _horizontalSpeed;
-        private float _minBalloonSize;
-        private float _maxBalloonSize;
-        private float _sizeChangeSpeed;
-        private AnimationCurve _gravityCurve;
-        private float _minGravity; //TODO: remove and switch to forces
-        private float _maxGravity; //TODO: remove and switch to forces
-        private float _changeWithScroller;
-        private float _scaleSpeed;
-        private float _moveHorizontal;
-        private float _moveVertical;
-        private float _balloonSizeCur;
-        private float _yAxisForceAmount;
-        private float _minForceAmount; 
-    #endregion
+
     private Camera _mainCam;
     private Rigidbody2D _rigidbody;
     
-    private float _gravityRange;
     private float _forceRange;
 
     private float _curGravity;
-
-    private bool isChangingSize = false;
+    
 
     private float _goalBalloonSize;
     private float _totalMouseMovementX;
