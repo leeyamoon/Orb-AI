@@ -141,7 +141,6 @@ public class QLearningAgent
         var currentQValue = GetQValue(state, action);
         var nextValue = GetValue(nextState);
         qValues[StateToString(state, action)] = currentQValue + alpha * (reward + discount * nextValue - currentQValue);
-        
     }
 
     public string StateToString(PlayerState state, PlayerAction action)

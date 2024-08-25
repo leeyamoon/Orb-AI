@@ -78,13 +78,16 @@ public class AIMovement : MovementParent
 
     private IEnumerator AIUpdate()
     {
-        QLearningAgent qAgent = new QLearningAgent(epsilon, alpha, discount);
+        // QLearningAgent qAgent = new QLearningAgent(epsilon, alpha, discount);
+        ImportanceSampling ISAgent = new ImportanceSampling(epsilon, discount);
+        LearnImportanceSampling(20, 1000, ISAgent);
         //qAgent.load_qvalue_dict();
         while (true)
         {
             yield return new WaitWhile(() => isChangingSize);
             //TODO add code transform.position
-            q_learning_Step(qAgent);
+            // q_learning_Step(qAgent);
+            PlayImportanceSampling(ISAgent);
             yield return new WaitForSeconds(iterationTime);
         }
         //qAgent.save_qvalue_dict();
@@ -144,6 +147,23 @@ public class AIMovement : MovementParent
         PlayerState next_state = GetNextState(state, action);
         float reward = RewardBehavior.Shared().TotalReward();
         agent.update(state, action, next_state, reward);
+        ResizeAndMove(action.moveX, action.moveY);
+    }
+
+    private void LearnImportanceSampling(int num_episodes, int episode_size, ImportanceSampling ISAgent)
+    {
+        PlayerState state = get_state(); // make sure that this is the start state
+        for (int i=0; i < num_episodes; i++)
+        {
+            var episode = ISAgent.GenerateEpisode(episode_size, state);
+            ISAgent.UpdateQValues(episode);
+        }
+    }
+
+    private void PlayImportanceSampling(ImportanceSampling ISAgent)
+    {
+        PlayerState state = get_state();
+        PlayerAction action = ISAgent.GetPolicy(state);
         ResizeAndMove(action.moveX, action.moveY);
     }
     
