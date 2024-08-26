@@ -30,6 +30,7 @@ public class GameManager : MonoBehaviour
 
     [Header("TextFields"), SerializeField] private TextMeshProUGUI winText;
     [SerializeField] private TextMeshProUGUI lostText;
+    [SerializeField] private TextMeshProUGUI timeText;
 
     private int _stageNumber = 0;
     private int spawnPointIndex = 0;
@@ -51,6 +52,11 @@ public class GameManager : MonoBehaviour
         staticObjMaterial.color = Color.black;
         toxicFillMaterial.color = Color.black;
         playerMaterial.color = Color.black;
+    }
+
+    private void Update()
+    {
+        timeText.text = "Time: " + Time.time.Round();
     }
 
     private void Start()
