@@ -78,17 +78,23 @@ public class RewardBehavior : MonoBehaviour
         var minColDist = allToxics.Min(x => x.Distance(_playerCollider));
         float minDist = minColDist.distance;
         print(minDist);
-        return 50 * math.exp(-minDist/20);
+        return 10 * math.exp(-minDist/10);
     }
 
     public void IndexUp()
     {
         _curIndex++;
     }
+    
+    public void ChangeIndex(int i)
+    {
+        if(i < 0 || i >= allGoalsTransform.Length)
+            return;
+        _curIndex = i;
+    }
 
     public float TotalReward()
     {
-        
         return pathReward() + SimpleReward() - LossToxic();
     }
     

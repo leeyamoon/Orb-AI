@@ -1,7 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 using Random = UnityEngine.Random;
 
 
@@ -11,12 +14,14 @@ public class ImportanceSampling
     private double discount;
     private Dictionary<string, double> qValues;
     private Dictionary<string, double> weightDict;
-    public ImportanceSampling(double epsilon, double discount)
+    private Tilemap _bordersGrid;
+    public ImportanceSampling(double epsilon, double discount, Tilemap bordersGrid)
     {
         this.epsilon = epsilon;
         this.discount = discount;
         qValues = new Dictionary<string, double>();
         weightDict = new Dictionary<string, double>();
+        _bordersGrid = bordersGrid;
     }
     
 
@@ -102,28 +107,35 @@ public class ImportanceSampling
         {
             foreach (AIMovement.YMovement y_move in y_movemoent)
             {
-                var action = new PlayerAction(x_move, y_move);
-                legal_actions.Add(action);
+                var action = new PlayerAction(x_move, y_move); //TODO
+                if(IsTileAtPosition(GetNextState(state, action).GetAsVec()))
+                    legal_actions.Add(action);
             }
         }
         return legal_actions;
+    }
+    
+    private bool IsTileAtPosition(Vector3 worldPosition)
+    {
+        Vector3Int cellPosition = _bordersGrid.WorldToCell(worldPosition);
+        return _bordersGrid.HasTile(cellPosition);
     }
 
     public void UpdateQValues(List<(PlayerState, PlayerAction, double)> epsiode)
     {
         double GeneralReward = 0;
         double GeneralWeight = 1;
-        Dictionary<string, double> muDict = qValues; // make sure is good copy
+        Dictionary<string, double> muDict = qValues.ToDictionary(entry => entry.Key, entry => entry.Value);
         for (int i=epsiode.Count-2; i >= 0; i--)
         {
             PlayerState currentState = epsiode[i].Item1;
             PlayerAction currentAction = epsiode[i].Item2;
             double currentReward = epsiode[i+1].Item3;
-            GeneralReward = GeneralReward * this.discount + currentReward;
+            GeneralReward = GeneralReward * discount + currentReward;
             var stateActionKey = StateToString(currentState, currentAction);
             weightDict[stateActionKey] = GetWeight(currentState, currentAction) + GeneralWeight;
             qValues[stateActionKey] = GetQValue(currentState, currentAction) + (GeneralWeight/GetWeight(currentState, currentAction))*(GeneralReward - GetQValue(currentState, currentAction));
-            GeneralWeight = GeneralWeight / MueActionState(currentState, currentAction, muDict);
+            GeneralWeight /=  MueActionState(currentState, currentAction, muDict);
         }
     }
 

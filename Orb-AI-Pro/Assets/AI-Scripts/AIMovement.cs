@@ -5,6 +5,7 @@ using DG.Tweening;
 using UnityEngine;
 using System.Linq;
 using Unity.Mathematics;
+using UnityEngine.Tilemaps;
 
 
 public class AIMovement : MovementParent
@@ -26,6 +27,7 @@ public class AIMovement : MovementParent
     private const float THRESHOLD_FOR_INITIAL_MOVEMENT = 10f;
 
     [SerializeField] private float iterationTime;
+    [SerializeField] private Tilemap tilemap;
     
     private Camera _mainCam;
     private Rigidbody2D _rigidbody;
@@ -81,7 +83,7 @@ public class AIMovement : MovementParent
     // private IEnumerator AIUpdate()
     // {
     //     // QLearningAgent qAgent = new QLearningAgent(epsilon, alpha, discount);
-    //     ImportanceSampling ISAgent = new ImportanceSampling(epsilon, discount);
+    //     ImportanceSampling ISAgent = new ImportanceSampling(epsilon, discount, tilemap);
     //     LearnImportanceSampling(20, 1000, ISAgent);
     //     //qAgent.load_qvalue_dict();
     //     while (true)
@@ -100,8 +102,7 @@ public class AIMovement : MovementParent
         List<PlayerAction> actionsArr = new List<PlayerAction>();
         for (int i = 0; i < RewardBehavior.Shared().allGoalsTransform.Length-1; i++)
         {
-            print(i);
-            AStarSearch aStar = new AStarSearch(get_state());
+            AStar aStar = new AStar(get_state());
             List<PlayerAction> tempActionsArr = aStar.Search(RewardHeurisroc).Actions;
             actionsArr.AddRange(tempActionsArr);
             RewardBehavior.Shared().IndexUp();
