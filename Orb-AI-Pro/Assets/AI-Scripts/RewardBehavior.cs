@@ -8,7 +8,7 @@ using UnityEngine;
 public class RewardBehavior : MonoBehaviour
 {
     [SerializeField] private Transform playerTrans;
-    [SerializeField] private Transform[] allGoalsTransform;
+    [SerializeField] public Transform[] allGoalsTransform;
     [SerializeField] private Collider2D[] allToxics;
     
 
@@ -40,14 +40,29 @@ public class RewardBehavior : MonoBehaviour
         return allGoalsTransform[_curIndex].position;
     }
 
-    private float SimpleReward()
+    public float SimpleReward()
     {
         var dist = Vector2.Distance(playerTrans.position, allGoalsTransform[_curIndex].position);
         var reward =  100 * math.exp(-dist/20);
         return reward;
     }
 
-    private float pathReward()
+    public float L2Reward(PlayerState state)
+    {
+        var dist = Vector2.Distance(new Vector2(state.posX, state.posY), allGoalsTransform[_curIndex].position);
+        // for (int i = _curIndex; i < allGoalsTransform.Length - 1; i++)
+        // {
+        //     dist += Vector2.Distance(allGoalsTransform[i].position, allGoalsTransform[i+1].position);
+        // }
+        return dist;
+    }
+
+    public bool IsCloseToGoal(PlayerState state)
+    {
+        return 100 > Vector2.Distance(new Vector2(state.posX, state.posY), allGoalsTransform[_curIndex].position);
+    }
+
+    public float pathReward()
     {
         float pathReward = 0;
         for (int i = _curIndex + 1; i < allGoalsTransform.Length - 1; i++)

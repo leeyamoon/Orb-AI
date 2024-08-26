@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
+using System.Linq;
+using Unity.Mathematics;
 
 
 public class AIMovement : MovementParent
@@ -76,21 +78,54 @@ public class AIMovement : MovementParent
         ForceChangeWithSize();
     }
 
+    // private IEnumerator AIUpdate()
+    // {
+    //     // QLearningAgent qAgent = new QLearningAgent(epsilon, alpha, discount);
+    //     ImportanceSampling ISAgent = new ImportanceSampling(epsilon, discount);
+    //     LearnImportanceSampling(20, 1000, ISAgent);
+    //     //qAgent.load_qvalue_dict();
+    //     while (true)
+    //     {
+    //         yield return new WaitWhile(() => isChangingSize);
+    //         //TODO add code transform.position
+    //         // q_learning_Step(qAgent);
+    //         PlayImportanceSampling(ISAgent);
+    //         yield return new WaitForSeconds(iterationTime);
+    //     }
+    //     //qAgent.save_qvalue_dict();
+    // }
+
     private IEnumerator AIUpdate()
     {
-        // QLearningAgent qAgent = new QLearningAgent(epsilon, alpha, discount);
-        ImportanceSampling ISAgent = new ImportanceSampling(epsilon, discount);
-        LearnImportanceSampling(20, 1000, ISAgent);
-        //qAgent.load_qvalue_dict();
-        while (true)
+        List<PlayerAction> actionsArr = new List<PlayerAction>();
+        for (int i = 0; i < RewardBehavior.Shared().allGoalsTransform.Length-1; i++)
+        {
+            print(i);
+            AStarSearch aStar = new AStarSearch(get_state());
+            List<PlayerAction> tempActionsArr = aStar.Search(RewardHeurisroc).Actions;
+            actionsArr.AddRange(tempActionsArr);
+            RewardBehavior.Shared().IndexUp();
+        }
+        int counter = 0;
+        while (counter < actionsArr.Count)
         {
             yield return new WaitWhile(() => isChangingSize);
-            //TODO add code transform.position
-            // q_learning_Step(qAgent);
-            PlayImportanceSampling(ISAgent);
+            var move = actionsArr[counter];
+            counter = counter + 1;
+            ResizeAndMove(move.moveX, move.moveY);
             yield return new WaitForSeconds(iterationTime);
         }
-        //qAgent.save_qvalue_dict();
+    }
+
+    private double RewardHeurisroc(PlayerState state)
+    {
+        // if (RewardBehavior.Shared().IsCloseToGoal(state))
+        // {
+        //     RewardBehavior.Shared().IndexUp();
+        // }
+        return RewardBehavior.Shared().L2Reward(state);
+        // double reward = RewardBehavior.Shared().TotalReward();
+        // return math.exp(-reward);
     }
 
     private PlayerState get_state()
@@ -100,7 +135,6 @@ public class AIMovement : MovementParent
         float y = objectPosition.y;
         PlayerState state = new PlayerState(x, y);
         return state;
-
     }
     
     // Define the function that takes a state and an action and returns the next state
