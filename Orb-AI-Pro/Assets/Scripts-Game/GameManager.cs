@@ -56,7 +56,7 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        timeText.text = "Time: " + Time.time.Round();
+        timeText.text = "Time: " + Math.Round(Time.time, 2);
     }
 
     private void Start()

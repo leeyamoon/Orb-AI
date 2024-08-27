@@ -8,4 +8,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Game-QLearn.unity
     guid: e1ed7d33f06f3814a8cf0bd59564c4e1
+  - enabled: 1
+    path: Assets/Scenes/OpenScreen.unity
+    guid: 6fd99736ffbe62b4aa5dca91a6960b64
+  - enabled: 1
+    path: Assets/Scenes/Game-Heuristic.unity
+    guid: e62dafb1d8876a141bf4ac49cdf9f145
+  - enabled: 1
+    path: Assets/Scenes/Game-Play.unity
+    guid: 965c9a4ca25364040af1609ddd571ce6
   m_configObjects: {}
