@@ -196,7 +196,7 @@ public class AIMovement : MovementParent
     {
         while (true)
         {
-            yield return new WaitForSeconds(15);
+            yield return new WaitForSeconds(60);
             qAgent.save_qvalue_dict();
         }
         
