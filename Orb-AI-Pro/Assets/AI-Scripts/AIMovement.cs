@@ -99,47 +99,104 @@ public class AIMovement : MovementParent
     // }
 
     // Graph Heuristic
+    // private IEnumerator AIUpdate()
+    // {
+    //     List<List<PlayerAction>> actionsArr = new List<List<PlayerAction>>();
+    //     AStar aStar = new AStar(get_state(), tilemap);
+    //     List<PlayerAction> tempActionsArr = aStar.Search(RewardHeurisroc).Actions;
+    //     actionsArr.Add(tempActionsArr);
+    //     //RewardBehavior.Shared().IndexUp();
+    //     for (int i = 0; i < RewardBehavior.Shared().allGoalsTransform.Length; i++)
+    //     {
+    //         Vector2 goalPos = RewardBehavior.Shared().allGoalsTransform[i].position; 
+    //         aStar = new AStar(new PlayerState(goalPos.x, goalPos.y), tilemap);
+    //         tempActionsArr = aStar.Search(RewardHeurisroc).Actions;
+    //         actionsArr.Add(tempActionsArr);
+    //         //RewardBehavior.Shared().IndexUp();
+    //     }
+
+    //     int goal_counter = 0; 
+    //     // while (goal_counter <  RewardBehavior.Shared().allGoalsTransform.Length)
+    //     // {
+    //     //     var start_state = new PlayerState(0,0);
+    //     //     if (goal_counter == 0)
+    //     //     {
+    //     //         start_state = get_state();
+    //     //     }
+    //     //     else
+    //     //     {
+    //     //         Vector2 goalPos = RewardBehavior.Shared().allGoalsTransform[goal_counter-1].position;
+    //     //         start_state = new PlayerState(goalPos.x, goalPos.y);
+    //     //     }
+    //     //     AStar aStar = new AStar(start_state, tilemap);
+    //     //     Node currentNode = aStar.Search(RewardHeurisroc);
+    //     //     List<PlayerAction> tempActionsArr = currentNode.Actions;
+    //     //     actionsArr.Add(tempActionsArr);
+    //     //     var goal =  RewardBehavior.Shared().allGoalsTransform[goal_counter].position;
+    //     //     if(IsPositionsClose(new Vector2(currentNode.currentState.posX, currentNode.currentState.posY), goal))
+    //     //     {
+    //     //         goal_counter++;
+    //     //     }
+    //     // }
+    //     int arr_counter = 0;
+    //     goal_counter = 0;
+    //     while (arr_counter < actionsArr.Count)
+    //     {
+    //         foreach (var action in actionsArr[arr_counter])
+    //         {
+    //             yield return new WaitWhile(() => isChangingSize);
+    //             var move = action;
+    //             print(RewardHeurisroc(get_state()) + "   :  " + arr_counter + "  :  " + actionsArr[arr_counter].Count + "   :   " + RewardBehavior.Shared()._curIndex);
+    //             ResizeAndMove(move.moveX, move.moveY);
+    //             yield return new WaitForSeconds(iterationTime);
+    //             var current_state = get_state();
+    //             var goal =  RewardBehavior.Shared().allGoalsTransform[goal_counter].position;
+    //             if(IsPositionsClose(new Vector2(current_state.posX, current_state.posY), goal))
+    //             {
+    //                 print("Got Close");
+    //                 goal_counter++;
+    //                 break;
+    //             }
+    //         }
+    //         arr_counter++;
+    //     }
+    // }
+
     private IEnumerator AIUpdate()
     {
-        List<List<PlayerAction>> actionsArr = new List<List<PlayerAction>>();
-        AStar aStar = new AStar(get_state(), tilemap);
-        List<PlayerAction> tempActionsArr = aStar.Search(RewardHeurisroc).Actions;
-        actionsArr.Add(tempActionsArr);
-        //RewardBehavior.Shared().IndexUp();
-        for (int i = 1; i < RewardBehavior.Shared().allGoalsTransform.Length; i++)
+        while (true)
         {
-            Vector2 goalPos = RewardBehavior.Shared().allGoalsTransform[i].position; 
-            aStar = new AStar(new PlayerState(goalPos.x, goalPos.y), tilemap);
-            tempActionsArr = aStar.Search(RewardHeurisroc).Actions;
-            actionsArr.Add(tempActionsArr);
-            //RewardBehavior.Shared().IndexUp();
-        }
-        int counter = 0;
-        while (counter < actionsArr.Count)
-        {
-            foreach (var action in actionsArr[counter])
+            var current_state = get_state();
+            var goal =  RewardBehavior.Shared().allGoalsTransform[RewardBehavior.Shared()._curIndex].position;
+            // float numIter = Vector2.Distance(new Vector2(current_state.posX, current_state.posY),goal) / 4 + 3;
+            float numIter = 14;
+            AStar aStar = new AStar(get_state(), tilemap, numIter);
+            List<PlayerAction> tempActionsArr = aStar.Search(RewardHeurisroc).Actions;
+            foreach (var action in tempActionsArr)
             {
                 yield return new WaitWhile(() => isChangingSize);
                 var move = action;
-                print(RewardHeurisroc(get_state()) + "   :  " + counter + "  :  " + actionsArr[counter].Count);
                 ResizeAndMove(move.moveX, move.moveY);
                 yield return new WaitForSeconds(iterationTime);
-                if(RewardBehavior.Shared().IsCloseToGoal(get_state()))
+                current_state = get_state();
+                // var goal =  RewardBehavior.Shared().allGoalsTransform[RewardBehavior.Shared()._curIndex].position;
+                if(IsPositionsClose(new Vector2(current_state.posX, current_state.posY), goal))
+                {
+                    print("Got Close");
                     break;
+                }
             }
-            counter++;
         }
     }
 
     private double RewardHeurisroc(PlayerState state)
     {
-        // if (RewardBehavior.Shared().IsCloseToGoal(state))
-        // {
-        //     RewardBehavior.Shared().IndexUp();
-        // }
         return RewardBehavior.Shared().L2Reward(state);
-        // double reward = RewardBehavior.Shared().TotalReward();
-        // return math.exp(-reward);
+    }
+
+    private bool IsPositionsClose(Vector2 x, Vector2 y)
+    {
+        return 10 > Vector2.Distance(x,y);
     }
 
     private PlayerState get_state()

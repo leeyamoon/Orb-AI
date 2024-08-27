@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -42,11 +39,13 @@ public class AStar
 {
     private PlayerState StartState;
     private Tilemap _bordersGrid;
+    private float num_iter;
 
-    public AStar(PlayerState state, Tilemap bordersGrid)
+    public AStar(PlayerState state, Tilemap bordersGrid, float numIter)
     {
         StartState = state;
         _bordersGrid = bordersGrid;
+        num_iter = numIter;
     }
 
 
@@ -57,21 +56,12 @@ public class AStar
         Node StartNode = new Node(new List<PlayerAction>(), StartState, 0, heuristic(StartState));
         queue.Enqueue(new PriorityItem(StartNode,0));
         int num_step = 0;
+        Node tempNode = new Node(new List<PlayerAction>(), StartState, 0, heuristic(StartState));
 
         while (!queue.IsEmpty())
         {
             PriorityItem item = queue.Dequeue();
-
-            // if (problem.IsGoalState(item.State))
-            // {
-            //     return item.ActionArr;
-            // }
-
-            // if (num_step > 5000) 
-            // {
-            //     return item.Node;
-            // }
-            if (num_step > 50)  //RewardBehavior.Shared().IsCloseToGoal(item.Node.currentState) || 
+            if (num_step > num_iter)  //RewardBehavior.Shared().IsCloseToGoal(item.Node.currentState) || 
             {
                 // Debug.Log($"Got Close! {num_step}");
                 // RewardBehavior.Shared().IndexUp();
@@ -89,15 +79,17 @@ public class AStar
                 // }
                 // print(heuristic(nextSatet));
                 // visited.Add(stateString);
-                item.Node.Actions.Add(successor);
-                Node successorNode = new Node(new List<PlayerAction>(item.Node.Actions), nextSatet, item.Node.GCost + Math.Sqrt(2), heuristic(nextSatet));
-                item.Node.Actions.Remove(successor);
-                double newPriority = item.Node.GCost + Math.Sqrt(2) + heuristic(nextSatet);
+                List<PlayerAction> copyList = new List<PlayerAction>(item.Node.Actions);
+                copyList.Add(successor);
+                Node successorNode = new Node(copyList, nextSatet, item.Node.GCost + 1, heuristic(nextSatet)); // add penalty for sharp edges
+                double newPriority = item.Node.GCost + 1 + heuristic(nextSatet);
                 queue.Enqueue(new PriorityItem(successorNode, newPriority));
-                num_step = num_step + 1;
             }
+            num_step++;
+            tempNode = item.Node;
+            // Debug.Log($"{num_step} {item.Node.Actions.Count}");
         }
-        return queue.Dequeue().Node;
+        return tempNode;
     }
 
     private string StateToStr(PlayerState state)
@@ -192,15 +184,24 @@ public class PriorityQueue
     public PriorityQueue()
     {
         heap = new SortedSet<PriorityItem>(Comparer<PriorityItem>.Create((a, b) => a.CompareTo(b)));
+        // heap = new List<PriorityItem>();
     }
 
     public void Enqueue(PriorityItem NewItem)
-    {
+    {   
+        // if (heap.Count == 0){
+        //     heap.Add(NewItem);
+        //     return;
+        // }
         // for (int i = 0; i < heap.Count; i++)
         // {
         //     if (NewItem.Priority_ < heap[i].Priority_)
         //     {
         //         heap.Insert(i, NewItem);
+        //         return;
+        //     }
+        //     if (i == heap.Count-1) {
+        //         heap.Add(NewItem);
         //         return;
         //     }
         // }
@@ -215,6 +216,7 @@ public class PriorityQueue
         }
 
         var first = heap.Min;
+        // var first = heap[0];
         heap.Remove(first);
         return first;
     }
@@ -228,6 +230,7 @@ public class PriorityQueue
     {
         // heap = new SortedSet<PriorityItem>(Comparer<PriorityItem>.Create((a, b) => a.CompareTo(b)));
         heap.Clear();
+        // heap = new List<PriorityItem>();
     }
 
     public int Size()

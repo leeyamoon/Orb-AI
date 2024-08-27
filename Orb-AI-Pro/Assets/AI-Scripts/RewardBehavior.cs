@@ -15,7 +15,7 @@ public class RewardBehavior : MonoBehaviour
     private static RewardBehavior _self;
     private Collider2D _playerCollider;
     private float betweenPath;
-    private int _curIndex;
+    public int _curIndex;
 
     private void Awake()
     {

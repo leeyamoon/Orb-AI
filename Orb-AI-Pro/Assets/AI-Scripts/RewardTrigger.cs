@@ -18,6 +18,5 @@ public class RewardTrigger : MonoBehaviour
             return;
         _visited = true;
         RewardBehavior.Shared().IndexUp();
-        print("UP!!");
     }
 }
