@@ -43,25 +43,6 @@ public struct PlayerAction
     }
 }
 
-// public class PlayerStateActionComparer : IEqualityComparer<(PlayerState, PlayerAction)>
-// {
-//     public bool Equals((PlayerState, PlayerAction) x, (PlayerState, PlayerAction) y)
-//     {
-//         return x.Item1.posX == y.Item1.posX && x.Item1.posY == y.Item1.posY && x.Item2.moveX == y.Item2.moveX && x.Item2.moveY == y.Item2.moveY;
-//     }
-//
-//     public int GetHashCode((PlayerState, PlayerAction) obj)
-//     {
-//         unchecked // Overflow is fine, just wrap
-//         {
-//             int hash = 17;
-//             hash = hash * 23 + obj.Item1.GetHashCode();
-//             hash = hash * 23 + obj.Item2.GetHashCode();
-//             return hash;
-//         }
-//     }
-// }
-
 
 public class QLearningAgent
 {
@@ -165,27 +146,25 @@ public class QLearningAgent
     }
     
 
-    // public void load_qvalue_dict()
-    // {
-    //     string file_path = "dictionary.json";
-    //     if (File.Exists(file_path))
-    //     {
-    //         // Serialize the dictionary to a JSON string
-    //         string jsonString = JsonSerializer.Serialize(dictionary);
-    //         
-    //         // Write the JSON string to a file
-    //         File.WriteAllText(file_path, jsonString);
-    //     }
-    // }
-    //
-    // public void save_qvalue_dict()
-    // {
-    //     // Read the JSON string from the file
-    //     string jsonString = File.ReadAllText("dictionary.json");
-    //
-    //     // Deserialize the JSON string back to a dictionary
-    //     this.qValues = JsonSerializer.Deserialize<Dictionary<string, int>>(jsonString);
-    // }
+    public void load_qvalue_dict()
+    {
+        if(!PlayerPrefs.HasKey("Qdict"))
+            return;
+        string json = PlayerPrefs.GetString("Qdict");
+        SerializationWrapper<string, double> wrapper = JsonUtility.FromJson<SerializationWrapper<string, double>>(json);
+        qValues = wrapper.items.ToDictionary(x => x.key, x => x.value);
+    }
+    
+    public void save_qvalue_dict()
+    {
+        List<KeyValuePair<string, double>> kvpList = new List<KeyValuePair<string, double>>();
+        foreach (var kvp in qValues)
+        {
+            kvpList.Add(new KeyValuePair<string, double>(kvp.Key, kvp.Value));
+        }
+        string json = JsonUtility.ToJson(new SerializationWrapper<string, double>(kvpList));
+        PlayerPrefs.SetString("Qdict", json);
+    }
 }
 
 public static class Util
@@ -193,6 +172,30 @@ public static class Util
     public static bool FlipCoin(double probability)
     {
         return Random.Range(0f,1f) < probability;
+    }
+}
+
+[Serializable]
+public class KeyValuePair<TK, TV>
+{
+    public TK key;
+    public TV value;
+
+    public KeyValuePair(TK key, TV value)
+    {
+        key = key;
+        value = value;
+    }
+}
+
+[Serializable]
+public class SerializationWrapper<K, V>
+{
+    public List<KeyValuePair<K, V>> items;
+
+    public SerializationWrapper(List<KeyValuePair<K, V>> new_items)
+    {
+        items = new_items;
     }
 }
 
