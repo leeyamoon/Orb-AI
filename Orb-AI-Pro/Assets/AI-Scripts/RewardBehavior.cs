@@ -59,7 +59,7 @@ public class RewardBehavior : MonoBehaviour
 
     public bool IsCloseToGoal(PlayerState state)
     {
-        return 100 > Vector2.Distance(new Vector2(state.posX, state.posY), allGoalsTransform[_curIndex].position);
+        return 10 > Vector2.Distance(new Vector2(state.posX, state.posY), allGoalsTransform[_curIndex].position);
     }
 
     public float pathReward()

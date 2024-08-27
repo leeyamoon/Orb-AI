@@ -108,8 +108,8 @@ public class ImportanceSampling
             foreach (AIMovement.YMovement y_move in y_movemoent)
             {
                 var action = new PlayerAction(x_move, y_move); //TODO
-                if(IsTileAtPosition(GetNextState(state, action).GetAsVec()))
-                    legal_actions.Add(action);
+                //if(!IsTileAtPosition(GetNextState(state, action).GetAsVec())) 
+                legal_actions.Add(action);
             }
         }
         return legal_actions;

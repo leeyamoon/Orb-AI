@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Mathematics;
+using UnityEngine.Tilemaps;
 
 public class Node : IComparable<Node>
 {
@@ -15,7 +16,7 @@ public class Node : IComparable<Node>
     public double GCost; // Cost from start node
     public double HCost; // Heuristic cost to end node
     public double FCost => GCost + HCost; // Total cost
-    public Node Parent; // Parent node in path
+    public Node Parent; // Parent node in pat
 
     public Node(List<PlayerAction> action, PlayerState state, double cost, double HeuristicCost)
     {
@@ -40,10 +41,12 @@ public class Node : IComparable<Node>
 public class AStar
 {
     private PlayerState StartState;
+    private Tilemap _bordersGrid;
 
-    public AStar(PlayerState state)
+    public AStar(PlayerState state, Tilemap bordersGrid)
     {
         StartState = state;
+        _bordersGrid = bordersGrid;
     }
 
 
@@ -68,7 +71,7 @@ public class AStar
             // {
             //     return item.Node;
             // }
-            if (RewardBehavior.Shared().IsCloseToGoal(item.Node.currentState) || num_step > 50)
+            if (num_step > 50)  //RewardBehavior.Shared().IsCloseToGoal(item.Node.currentState) || 
             {
                 // Debug.Log($"Got Close! {num_step}");
                 // RewardBehavior.Shared().IndexUp();
@@ -112,10 +115,17 @@ public class AStar
             foreach (AIMovement.YMovement y_move in y_movemovent)
             {
                 var action = new PlayerAction(x_move, y_move);
-                legal_actions.Add(action);
+                if(!IsTileAtPosition(GetNextState(state, action).GetAsVec())) 
+                    legal_actions.Add(action);
             }
         }
         return legal_actions;
+    }
+    
+    private bool IsTileAtPosition(Vector3 worldPosition)
+    {
+        Vector3Int cellPosition = _bordersGrid.WorldToCell(worldPosition);
+        return _bordersGrid.HasTile(cellPosition);
     }
 
     public PlayerState GetNextState(PlayerState currentState, PlayerAction action)

@@ -80,6 +80,7 @@ public class AIMovement : MovementParent
         ForceChangeWithSize();
     }
 
+    // QLearning
     // private IEnumerator AIUpdate()
     // {
     //     // QLearningAgent qAgent = new QLearningAgent(epsilon, alpha, discount);
@@ -97,24 +98,36 @@ public class AIMovement : MovementParent
     //     //qAgent.save_qvalue_dict();
     // }
 
+    // Graph Heuristic
     private IEnumerator AIUpdate()
     {
-        List<PlayerAction> actionsArr = new List<PlayerAction>();
-        for (int i = 0; i < RewardBehavior.Shared().allGoalsTransform.Length-1; i++)
+        List<List<PlayerAction>> actionsArr = new List<List<PlayerAction>>();
+        AStar aStar = new AStar(get_state(), tilemap);
+        List<PlayerAction> tempActionsArr = aStar.Search(RewardHeurisroc).Actions;
+        actionsArr.Add(tempActionsArr);
+        //RewardBehavior.Shared().IndexUp();
+        for (int i = 1; i < RewardBehavior.Shared().allGoalsTransform.Length; i++)
         {
-            AStar aStar = new AStar(get_state());
-            List<PlayerAction> tempActionsArr = aStar.Search(RewardHeurisroc).Actions;
-            actionsArr.AddRange(tempActionsArr);
-            RewardBehavior.Shared().IndexUp();
+            Vector2 goalPos = RewardBehavior.Shared().allGoalsTransform[i].position; 
+            aStar = new AStar(new PlayerState(goalPos.x, goalPos.y), tilemap);
+            tempActionsArr = aStar.Search(RewardHeurisroc).Actions;
+            actionsArr.Add(tempActionsArr);
+            //RewardBehavior.Shared().IndexUp();
         }
         int counter = 0;
         while (counter < actionsArr.Count)
         {
-            yield return new WaitWhile(() => isChangingSize);
-            var move = actionsArr[counter];
-            counter = counter + 1;
-            ResizeAndMove(move.moveX, move.moveY);
-            yield return new WaitForSeconds(iterationTime);
+            foreach (var action in actionsArr[counter])
+            {
+                yield return new WaitWhile(() => isChangingSize);
+                var move = action;
+                print(RewardHeurisroc(get_state()) + "   :  " + counter + "  :  " + actionsArr[counter].Count);
+                ResizeAndMove(move.moveX, move.moveY);
+                yield return new WaitForSeconds(iterationTime);
+                if(RewardBehavior.Shared().IsCloseToGoal(get_state()))
+                    break;
+            }
+            counter++;
         }
     }
 
