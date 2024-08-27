@@ -75,9 +75,7 @@ public class RewardBehavior : MonoBehaviour
 
     private float LossToxic()
     {
-        var minColDist = allToxics.Min(x => x.Distance(_playerCollider));
-        float minDist = minColDist.distance;
-        print(minDist);
+        var minDist = allToxics.Min(x => x.Distance(_playerCollider).distance);
         return 10 * math.exp(-minDist/10);
     }
 

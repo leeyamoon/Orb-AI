@@ -148,9 +148,9 @@ public class QLearningAgent
 
     public void load_qvalue_dict()
     {
-        if(!PlayerPrefs.HasKey("Qdict"))
+        string json = ReadStringFromFile("QDict.txt");
+        if(json == null)
             return;
-        string json = PlayerPrefs.GetString("Qdict");
         SerializationWrapper<string, double> wrapper = JsonUtility.FromJson<SerializationWrapper<string, double>>(json);
         qValues = wrapper.items.ToDictionary(x => x.key, x => x.value);
     }
@@ -163,7 +163,25 @@ public class QLearningAgent
             kvpList.Add(new KeyValuePair<string, double>(kvp.Key, kvp.Value));
         }
         string json = JsonUtility.ToJson(new SerializationWrapper<string, double>(kvpList));
-        PlayerPrefs.SetString("Qdict", json);
+        SaveStringToFile(json, "QDict.txt");
+    }
+    
+    private string ReadStringFromFile(string fileName)
+    {
+        string path = Application.persistentDataPath + "/" + fileName;
+        if (!File.Exists(path))
+        {
+            return null;
+        }
+        string content = File.ReadAllText(path);
+        return content;
+    }
+    
+    void SaveStringToFile(string content, string fileName)
+    {
+        string path = Application.persistentDataPath + "/" + fileName;
+        File.WriteAllText(path, content);
+        Debug.Log("File saved to: " + path);
     }
 }
 
@@ -181,10 +199,10 @@ public class KeyValuePair<TK, TV>
     public TK key;
     public TV value;
 
-    public KeyValuePair(TK key, TV value)
+    public KeyValuePair(TK nkey, TV nvalue)
     {
-        key = key;
-        value = value;
+        key = nkey;
+        value = nvalue;
     }
 }
 

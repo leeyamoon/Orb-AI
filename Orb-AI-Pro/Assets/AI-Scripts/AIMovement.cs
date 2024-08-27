@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 using System.Linq;
+using MyBox.Internal;
 using Unity.Mathematics;
 using UnityEngine.Tilemaps;
 
@@ -70,6 +71,7 @@ public class AIMovement : MovementParent
         _goalBalloonSize = _balloonSizeCur;
         _lastTimeTouchedWall = Time.time;
         StartCoroutine(AIUpdate());
+        
     }
     
 
@@ -81,22 +83,23 @@ public class AIMovement : MovementParent
     }
 
     // QLearning
-    // private IEnumerator AIUpdate()
-    // {
-    //     // QLearningAgent qAgent = new QLearningAgent(epsilon, alpha, discount);
-    //     ImportanceSampling ISAgent = new ImportanceSampling(epsilon, discount, tilemap);
-    //     LearnImportanceSampling(20, 1000, ISAgent);
-    //     //qAgent.load_qvalue_dict();
-    //     while (true)
-    //     {
-    //         yield return new WaitWhile(() => isChangingSize);
-    //         //TODO add code transform.position
-    //         // q_learning_Step(qAgent);
-    //         PlayImportanceSampling(ISAgent);
-    //         yield return new WaitForSeconds(iterationTime);
-    //     }
-    //     //qAgent.save_qvalue_dict();
-    // }
+    private IEnumerator AIUpdate()
+    {
+        QLearningAgent qAgent = new QLearningAgent(epsilon, alpha, discount);
+        //ImportanceSampling ISAgent = new ImportanceSampling(epsilon, discount, tilemap);
+        //LearnImportanceSampling(20, 1000, ISAgent);
+        qAgent.load_qvalue_dict();
+        StartCoroutine(AutoSave(qAgent));
+        while (true)
+        {
+            yield return new WaitWhile(() => isChangingSize);
+            //TODO add code transform.position
+            q_learning_Step(qAgent);
+            //PlayImportanceSampling(ISAgent);
+            yield return new WaitForSeconds(iterationTime);
+        }
+        //qAgent.save_qvalue_dict();
+    }
 
     // Graph Heuristic
     // private IEnumerator AIUpdate()
@@ -162,33 +165,43 @@ public class AIMovement : MovementParent
     //     }
     // }
 
-    private IEnumerator AIUpdate()
+    // private IEnumerator AIUpdate()
+    // {
+    //     while (true)
+    //     {
+    //         var current_state = get_state();
+    //         var goal =  RewardBehavior.Shared().allGoalsTransform[RewardBehavior.Shared()._curIndex].position;
+    //         // float numIter = Vector2.Distance(new Vector2(current_state.posX, current_state.posY),goal) / 4 + 3;
+    //         float numIter = 14;
+    //         AStar aStar = new AStar(get_state(), tilemap, numIter);
+    //         List<PlayerAction> tempActionsArr = aStar.Search(RewardHeurisroc).Actions;
+    //         foreach (var action in tempActionsArr)
+    //         {
+    //             yield return new WaitWhile(() => isChangingSize);
+    //             var move = action;
+    //             ResizeAndMove(move.moveX, move.moveY);
+    //             yield return new WaitForSeconds(iterationTime);
+    //             current_state = get_state();
+    //             // var goal =  RewardBehavior.Shared().allGoalsTransform[RewardBehavior.Shared()._curIndex].position;
+    //             if(IsPositionsClose(new Vector2(current_state.posX, current_state.posY), goal))
+    //             {
+    //                 print("Got Close");
+    //                 break;
+    //             }
+    //         }
+    //     }
+    // }
+
+    private IEnumerator AutoSave(QLearningAgent qAgent)
     {
         while (true)
         {
-            var current_state = get_state();
-            var goal =  RewardBehavior.Shared().allGoalsTransform[RewardBehavior.Shared()._curIndex].position;
-            // float numIter = Vector2.Distance(new Vector2(current_state.posX, current_state.posY),goal) / 4 + 3;
-            float numIter = 14;
-            AStar aStar = new AStar(get_state(), tilemap, numIter);
-            List<PlayerAction> tempActionsArr = aStar.Search(RewardHeurisroc).Actions;
-            foreach (var action in tempActionsArr)
-            {
-                yield return new WaitWhile(() => isChangingSize);
-                var move = action;
-                ResizeAndMove(move.moveX, move.moveY);
-                yield return new WaitForSeconds(iterationTime);
-                current_state = get_state();
-                // var goal =  RewardBehavior.Shared().allGoalsTransform[RewardBehavior.Shared()._curIndex].position;
-                if(IsPositionsClose(new Vector2(current_state.posX, current_state.posY), goal))
-                {
-                    print("Got Close");
-                    break;
-                }
-            }
+            yield return new WaitForSeconds(15);
+            qAgent.save_qvalue_dict();
         }
+        
     }
-
+    
     private double RewardHeurisroc(PlayerState state)
     {
         return RewardBehavior.Shared().L2Reward(state);
