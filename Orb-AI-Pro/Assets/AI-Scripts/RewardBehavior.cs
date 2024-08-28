@@ -24,11 +24,11 @@ public class RewardBehavior : MonoBehaviour
         if (_self == null)
             _self = this;
         _playerCollider = playerTrans.gameObject.GetComponent<Collider2D>();
+        _curIndex = 0;
     }
 
     public void Start()
     {
-        _curIndex = 0;
         lastPositions = new List<Vector2>();
         lowVarPositios = new List<Vector2>();
     }
@@ -134,9 +134,9 @@ public class RewardBehavior : MonoBehaviour
         if (variance < 10)
         {
             foreach (var pos in lowVarPositios)
-                {
-                    loss += math.exp(-Vector2.Distance(pos, playerTrans.position)/10);
-                }
+            {
+                loss += math.exp(-Vector2.Distance(pos, playerTrans.position)/10);
+            }
         }
         return loss;;
     }

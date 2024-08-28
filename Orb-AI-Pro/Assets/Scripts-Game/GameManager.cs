@@ -96,7 +96,9 @@ public class GameManager : MonoBehaviour
     
     public void RespawnPlayer()
     {
-        if (!_isRespawning) _soundManager.PlayEffect(_soundManager.Kick);
+        if(_isRespawning)
+            return;
+        _soundManager.PlayEffect(_soundManager.Kick);
         ball.SetStage(GetCurrentStage());
         _isRespawning = true;
         ball.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
