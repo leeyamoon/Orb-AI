@@ -63,9 +63,6 @@ public class AStar
             PriorityItem item = queue.Dequeue();
             if (num_step > num_iter)  //RewardBehavior.Shared().IsCloseToGoal(item.Node.currentState) || 
             {
-                // Debug.Log($"Got Close! {num_step}");
-                // RewardBehavior.Shared().IndexUp();
-                // queue.Restart();
                 return item.Node;
             }
             //  Debug.Log($"{queue.Size()} {num_step}");
@@ -228,7 +225,6 @@ public class PriorityQueue
 
     public void Restart()
     {
-        // heap = new SortedSet<PriorityItem>(Comparer<PriorityItem>.Create((a, b) => a.CompareTo(b)));
         heap.Clear();
         // heap = new List<PriorityItem>();
     }

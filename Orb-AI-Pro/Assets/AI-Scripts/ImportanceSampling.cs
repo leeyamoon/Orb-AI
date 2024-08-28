@@ -5,6 +5,7 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using Unity.Mathematics;
 using Random = UnityEngine.Random;
 
 
@@ -32,7 +33,8 @@ public class ImportanceSampling
         for (int i=0;  i < episode_size; i++)
         {
             PlayerAction currentAction = GetAction(currentState);
-            float reward = RewardBehavior.Shared().TotalReward();
+            break;
+            float reward = RewardBehavior.Shared().TotalReward(currentState);
             var Touple = (first: currentState, second: currentAction, third: reward);
             episode.Add(Touple);
             currentState = GetNextState(currentState, currentAction);
@@ -79,6 +81,7 @@ public class ImportanceSampling
         double bestScore = GetQValue(state, legalActions[0]);
         foreach (var curAction in legalActions)
         {
+            // Debug.Log($"{curAction.moveX} {curAction.moveY} {GetQValue(state, curAction)}");
             if (bestScore > GetQValue(state, curAction))
             {
                 bestScore = GetQValue(state, curAction);
