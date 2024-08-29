@@ -72,10 +72,11 @@ public class QLearningAgent
                 var nextState = AIMovement.Shared().GetNextState(state, playerAction);
                 var changeWithStep = (nextState.GetAsVec() - state.GetAsVec()).normalized;
                 float angle = changeWithStep[0] * destVecNorm[0] + changeWithStep[1] * destVecNorm[1];
-                var value = -angle * destVec.magnitude;
+                var value = -angle; // * destVec.magnitude;
                 qValues[StateToString(state, playerAction)] = value;
             }
         }
+        // Debug.Log($"{qValues[key]}");
         return qValues[key];
     }
 

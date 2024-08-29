@@ -141,20 +141,34 @@ public class RewardBehavior : MonoBehaviour
         _curIndex = i;
     }
 
+    // public float TotalReward(PlayerState state)
+    // {
+    //     if (lastPositions.Count == 40)
+    //     {
+    //         var first = lastPositions[0];
+    //         lastPositions.Remove(first);    
+    //     } 
+    //     lastPositions.Add(state.GetAsVec());
+    //     var varLoss = 3 * getLocationVarianceLoss();
+    //     if (varLoss > 0){
+    //         Debug.Log($"{pathReward()} {SimpleReward()} {LossToxic()} {varLoss}");
+    //         return pathReward() + 3 * SimpleReward() - LossToxic()/2 - varLoss;
+    //     }
+    //     return pathReward() + SimpleReward() - LossToxic() - varLoss;
+    // }
+
     public float TotalReward(PlayerState state)
-    {
-        if (lastPositions.Count == 40)
+    {   var tl = LossToxic() /10;
+        if (Vector2.Distance(new Vector2(state.posX, state.posY), allGoalsTransform[_curIndex].position) < 5)
         {
-            var first = lastPositions[0];
-            lastPositions.Remove(first);    
-        } 
-        lastPositions.Add(state.GetAsVec());
-        var varLoss = 3 * getLocationVarianceLoss();
-        if (varLoss > 0){
-            Debug.Log($"{pathReward()} {SimpleReward()} {LossToxic()} {varLoss}");
-            return pathReward() + 5 * SimpleReward() - LossToxic()/2 - varLoss;
+            return 100 - tl;
         }
-        return pathReward() + 2 * SimpleReward() - LossToxic() - varLoss;
+        // if (allToxics.Min(x => x.Distance(_playerCollider).distance) < 2)
+        // {
+        //     return -100;
+        // }
+        Debug.Log($"toxic loss: {tl}, Goal index: {_curIndex}");
+        return -1 - tl;
     }
     
     public float getLocationVarianceLoss()

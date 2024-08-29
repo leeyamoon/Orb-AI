@@ -84,12 +84,12 @@ public class AIMovement : MovementParent
     // QLearning
     private IEnumerator AIUpdate()
     {
-        QLearningAgent qAgent = new QLearningAgent(0.01, alpha, 0.9999);
+        QLearningAgent qAgent = new QLearningAgent(epsilon, alpha, discount);
         // ImportanceSampling ISAgent = new ImportanceSampling(0.1, discount, tilemap);
         RewardBehavior.Shared().Start();
         // LearnImportanceSampling(20, 100, ISAgent);
-        qAgent.load_qvalue_dict();
-        StartCoroutine(AutoSave(qAgent));
+        // qAgent.load_qvalue_dict();
+        // StartCoroutine(AutoSave(qAgent));
         while (true)
         {
             yield return new WaitWhile(() => isChangingSize);
