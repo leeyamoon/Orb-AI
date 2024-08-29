@@ -199,4 +199,10 @@ public class RewardBehavior : MonoBehaviour
         }
         return loss;
     }
+
+
+    public void OnDeathCall()
+    {
+        print("AI");
+    }
 }

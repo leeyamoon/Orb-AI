@@ -150,6 +150,7 @@ public class GameManager : MonoBehaviour
     {
         _lostAmount++;
         UpdateTextFields();
+        RewardBehavior.Shared().OnDeathCall();
     }
 
     public void IncreaseWon()
