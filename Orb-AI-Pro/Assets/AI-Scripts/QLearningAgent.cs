@@ -73,7 +73,7 @@ public class QLearningAgent
                 var changeWithStep = (nextState.GetAsVec() - state.GetAsVec()).normalized;
                 float angle = changeWithStep[0] * destVecNorm[0] + changeWithStep[1] * destVecNorm[1];
                 var value = -angle * destVec.magnitude;
-                qValues[StateToString(state, playerAction)] = value;
+                qValues[StateToString(state, playerAction)] = value/10;
             }
         }
         return qValues[key];

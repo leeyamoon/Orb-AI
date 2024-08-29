@@ -152,9 +152,9 @@ public class RewardBehavior : MonoBehaviour
         var varLoss = 3 * getLocationVarianceLoss();
         if (varLoss > 0){
             Debug.Log($"{pathReward()} {SimpleReward()} {LossToxic()} {varLoss}");
-            return pathReward() + 5 * SimpleReward() - LossToxic()/2 - varLoss;
+            return pathReward() + 3 * SimpleReward() - LossToxic()/2 - varLoss;
         }
-        return pathReward() + 2 * SimpleReward() - LossToxic() - varLoss;
+        return pathReward() + SimpleReward() - LossToxic() - varLoss;
     }
     
     public float getLocationVarianceLoss()
