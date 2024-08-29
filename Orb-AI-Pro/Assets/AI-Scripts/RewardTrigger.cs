@@ -27,7 +27,17 @@ public class RewardTrigger : MonoBehaviour
         RewardBehavior.Shared().IndexUp();
         WhenInsideTheCollider();
     }
-    
+
+    private void OnTriggerStay2D(Collider2D other)
+    {
+        if(_visited)
+            return;
+        if (!other.CompareTag("Player")) return;
+        _visited = true;
+        RewardBehavior.Shared().IndexUp();
+        WhenInsideTheCollider();
+    }
+
     private void WhenInsideTheCollider()
     {
         GameManager.Shared().SetCurrentSpawnPoint(spawnIndex);

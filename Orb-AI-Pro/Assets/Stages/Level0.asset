@@ -15,8 +15,8 @@ MonoBehaviour:
   stageNumber: 0
   minSize: 0.5
   maxSize: 4
-  verticalSpeed: 120
-  horizontalSpeed: 1700
+  verticalSpeed: 80
+  horizontalSpeed: 1000
   gravityCurve:
     serializedVersion: 2
     m_Curve:

@@ -268,9 +268,9 @@ public class AIMovement : MovementParent
         while (Math.Abs(_goalBalloonSize - _balloonSizeCur) >= EPSILON)
         {
             if (_goalBalloonSize -_balloonSizeCur < -EPSILON)
-                _balloonSizeCur -= Time.deltaTime * iterationTime * 2;
+                _balloonSizeCur -= Time.deltaTime * (1/iterationTime);
             else
-                _balloonSizeCur += Time.deltaTime * iterationTime * 2;
+                _balloonSizeCur += Time.deltaTime * (1/iterationTime);
             transform.localScale = Vector3.one * _balloonSizeCur;
             yield return null;
         }
@@ -296,10 +296,10 @@ public class AIMovement : MovementParent
         switch (stateX)
         {
             case XMovement.Left:
-                speedScale = -30;
+                speedScale = -20;
                 break;
             case XMovement.Right:
-                speedScale = 30;
+                speedScale = 20;
                 break;
             default:
                 speedScale = 0;
