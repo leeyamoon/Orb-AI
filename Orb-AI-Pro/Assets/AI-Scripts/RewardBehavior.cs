@@ -9,17 +9,17 @@ public class RewardBehavior : MonoBehaviour
 {
     [SerializeField] private Transform playerTrans;
     [SerializeField] public Transform[] allGoalsTransform;
-    [SerializeField] private Collider2D[] allToxics;
+    [SerializeField] public Collider2D[] allToxics;
     
 
     private static RewardBehavior _self;
-    private Collider2D _playerCollider;
+    public Collider2D _playerCollider;
     private float betweenPath;
     public int _curIndex;
     private List<Vector2> lastPositions;
     private List<Vector2> lowVarPositios;
 
-    private void Awake()
+    public void Awake()
     {
         if (_self == null)
             _self = this;
@@ -47,6 +47,10 @@ public class RewardBehavior : MonoBehaviour
     {
         var dist = Vector2.Distance(playerTrans.position, allGoalsTransform[_curIndex].position);
         // var reward =  100 * math.exp(-dist/20);
+        // for (int i = _curIndex + 1; i < allGoalsTransform.Length - 2; i++)
+        // {
+        //     dist +=  Vector2.Distance(allGoalsTransform[i+1].position, allGoalsTransform[i].position);
+        // }
         var reward = 100 / (dist + 1);
         return reward;
     }
@@ -54,11 +58,52 @@ public class RewardBehavior : MonoBehaviour
     public float L2Reward(PlayerState state)
     {
         var dist = Vector2.Distance(new Vector2(state.posX, state.posY), allGoalsTransform[_curIndex].position);
-        // for (int i = _curIndex; i < allGoalsTransform.Length - 1; i++)
-        // {
-        //     dist += Vector2.Distance(allGoalsTransform[i].position, allGoalsTransform[i+1].position);
-        // }
-        return dist;
+        for (int i = _curIndex + 1; i < allGoalsTransform.Length - 2; i++)
+        {
+            dist +=  Vector2.Distance(allGoalsTransform[i+1].position, allGoalsTransform[i].position);
+        }
+        var shaprLoss = LossToxic() * 2;
+        if (allToxics.Min(x => x.Distance(_playerCollider).distance) < 3)
+            dist = dist * 10;
+        var GoalsLeft = -pathReward();
+        var varLoss = getLocationVarianceLossSearch(state) / 2;
+        Debug.Log($"distnace: {dist}, sharp loss: {shaprLoss}, varLoss: {varLoss}, Goal index: {_curIndex}");
+        return dist + shaprLoss + varLoss;
+    }
+
+    public float getLocationVarianceLossSearch(PlayerState state)
+    {
+        if (lastPositions.Count == 40)
+        {
+            var first = lastPositions[0];
+            lastPositions.Remove(first);    
+        } 
+        lastPositions.Add(state.GetAsVec());
+        Vector2 avgPos = new Vector2(lastPositions.Average(x=>x.x),lastPositions.Average(x=>x.y));
+        List<float> variances = new List<float>();
+        foreach (var pos in lastPositions)
+        {
+            variances.Add(Vector2.Distance(pos, avgPos));
+        }
+        float variance = variances.Average(x=>x);
+        if (variance < 5)
+        {
+            if (lowVarPositios.Count == 10)
+            {
+                var first = lowVarPositios[0];
+                lowVarPositios.Remove(first);  
+            }
+            lowVarPositios.Add(avgPos);
+        }
+        float loss = 0;
+        if (variance < 5)
+        {
+            foreach (var pos in lowVarPositios)
+            {
+                loss += math.exp(-Vector2.Distance(pos, playerTrans.position)/10);
+            }
+        }
+        return loss;
     }
 
     public bool IsCloseToGoal(PlayerState state)
@@ -107,9 +152,9 @@ public class RewardBehavior : MonoBehaviour
         var varLoss = 3 * getLocationVarianceLoss();
         if (varLoss > 0){
             Debug.Log($"{pathReward()} {SimpleReward()} {LossToxic()} {varLoss}");
-            return pathReward() + 3 * SimpleReward() - LossToxic()/2 - varLoss;
+            return pathReward() + 5 * SimpleReward() - LossToxic()/2 - varLoss;
         }
-        return pathReward() + SimpleReward() - LossToxic() - varLoss;
+        return pathReward() + 2 * SimpleReward() - LossToxic() - varLoss;
     }
     
     public float getLocationVarianceLoss()
@@ -138,6 +183,6 @@ public class RewardBehavior : MonoBehaviour
                 loss += math.exp(-Vector2.Distance(pos, playerTrans.position)/10);
             }
         }
-        return loss;;
+        return loss;
     }
 }

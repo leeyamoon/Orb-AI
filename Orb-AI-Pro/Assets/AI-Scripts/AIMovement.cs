@@ -84,32 +84,33 @@ public class AIMovement : MovementParent
     // QLearning
     private IEnumerator AIUpdate()
     {
-        // QLearningAgent qAgent = new QLearningAgent(0.01, alpha, 0.9999);
-        ImportanceSampling ISAgent = new ImportanceSampling(0.1, discount, tilemap);
+        QLearningAgent qAgent = new QLearningAgent(0.01, alpha, 0.9999);
+        // ImportanceSampling ISAgent = new ImportanceSampling(0.1, discount, tilemap);
         RewardBehavior.Shared().Start();
-        LearnImportanceSampling(20, 100, ISAgent);
-        // qAgent.load_qvalue_dict();
-        // StartCoroutine(AutoSave(qAgent));
+        // LearnImportanceSampling(20, 100, ISAgent);
+        qAgent.load_qvalue_dict();
+        StartCoroutine(AutoSave(qAgent));
         while (true)
         {
             yield return new WaitWhile(() => isChangingSize);
             //TODO add code transform.position
-            // q_learning_Step(qAgent);
-            PlayImportanceSampling(ISAgent);
+            q_learning_Step(qAgent);
+            // PlayImportanceSampling(ISAgent);
             yield return new WaitForSeconds(iterationTime);
         }
         // qAgent.save_qvalue_dict();
     }
 
-    //aStar Search
+    // aStar Search
     // private IEnumerator AIUpdate()
     // {
+    //     RewardBehavior.Shared().Start();
     //     while (true)
     //     {
     //         var current_state = get_state();
     //         var goal =  RewardBehavior.Shared().allGoalsTransform[RewardBehavior.Shared()._curIndex].position;
     //         // float numIter = Vector2.Distance(new Vector2(current_state.posX, current_state.posY),goal) / 4 + 3;
-    //         float numIter = 7;
+    //         float numIter = 10;
     //         AStar aStar = new AStar(get_state(), tilemap, numIter);
     //         List<PlayerAction> tempActionsArr = aStar.Search(RewardHeurisroc).Actions;
     //         foreach (var action in tempActionsArr)
@@ -117,6 +118,11 @@ public class AIMovement : MovementParent
     //             yield return new WaitWhile(() => isChangingSize);
     //             var move = action;
     //             ResizeAndMove(move.moveX, move.moveY);
+    //             if (RewardBehavior.Shared().allToxics.Min(x => x.Distance(RewardBehavior.Shared()._playerCollider).distance) < 10)
+    //             {
+    //                 numIter = 2;
+    //                 break;
+    //             }
     //             yield return new WaitForSeconds(iterationTime);
     //             current_state = get_state();
     //             // var goal =  RewardBehavior.Shared().allGoalsTransform[RewardBehavior.Shared()._curIndex].position;
