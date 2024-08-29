@@ -105,6 +105,8 @@ public class GameManager : MonoBehaviour
         playerDissolve.Dissolve();
         //New For AI
         _lostAmount++;
+        RewardBehavior.Shared().OnDeathCall();
+        AIMovement.Shared().RestartUpdate();
         UpdateTextFields();
         //End New For AI
         ball.transform.DOMove(savePoints[spawnPointIndex].position, respawnTime)
