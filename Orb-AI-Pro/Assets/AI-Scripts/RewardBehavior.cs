@@ -124,7 +124,8 @@ public class RewardBehavior : MonoBehaviour
 
     private float LossToxic()
     {
-        var minDist = allToxics.Min(x => x.Distance(_playerCollider).distance);
+        var activeToxic = allToxics.Where(x => x.gameObject.activeSelf);
+        var minDist = activeToxic.Min(x => x.Distance(_playerCollider).distance);
         // return 10 * math.exp(-minDist/10);
         return 80 / (minDist+1);
     }
@@ -158,7 +159,7 @@ public class RewardBehavior : MonoBehaviour
     // }
 
     public float TotalReward(PlayerState state)
-    {   var tl = LossToxic() /10;
+    {   var tl = LossToxic() /4;
         if (Vector2.Distance(new Vector2(state.posX, state.posY), allGoalsTransform[_curIndex].position) < 5)
         {
             return 100 - tl;
@@ -167,7 +168,7 @@ public class RewardBehavior : MonoBehaviour
         // {
         //     return -100;
         // }
-        Debug.Log($"toxic loss: {tl}, Goal index: {_curIndex}");
+        Debug.Log($"toxic loss: {tl}, total: {-1-tl}, Goal Name: {allGoalsTransform[_curIndex].name}");
         return -1 - tl;
     }
     

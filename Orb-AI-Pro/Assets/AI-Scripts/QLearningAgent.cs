@@ -6,6 +6,7 @@ using System.IO;
 using MyBox;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 using Random = UnityEngine.Random;
 
 public class PlayerState
@@ -51,12 +52,15 @@ public class QLearningAgent
     private double alpha; // learning rate
     private double discount; // discount rate
 
-    public QLearningAgent(double epsilon, double alpha, double discount)
+    private Tilemap _bordersGrid;
+
+    public QLearningAgent(double epsilon, double alpha, double discount, Tilemap bordersGrid)
     {
         this.epsilon = epsilon;
         this.alpha = alpha;
         this.discount = discount;
         qValues = new Dictionary<string, double>();
+        _bordersGrid = bordersGrid;
     }
 
     public double GetQValue(PlayerState state, PlayerAction action)
@@ -110,6 +114,9 @@ public class QLearningAgent
     public PlayerAction GetAction(PlayerState state)
     {
         var legalActions = GetLegalActions(state);
+        //TODO if in forceField 
+        // if (legalActions.Count == 0)
+        //     legalActions = GetLegalActions(new PlayerState(0, 0)); 
         if (Util.FlipCoin(epsilon))
         {
             return legalActions[Random.Range(0,legalActions.Count)];
@@ -125,7 +132,7 @@ public class QLearningAgent
         qValues[StateToString(state, action)] = currentQValue + alpha * (reward + discount * nextValue - currentQValue);
     }
 
-    public string StateToString(PlayerState state, PlayerAction action)
+    private string StateToString(PlayerState state, PlayerAction action)
     {
         return "(" + state.posX + ", " + state.posY + ", " + action.moveX + ", " + action.moveY + ")";
     }
@@ -140,12 +147,19 @@ public class QLearningAgent
             foreach (AIMovement.YMovement y_move in y_movemoent)
             {
                 var action = new PlayerAction(x_move, y_move);
+                //if(!IsTileAtPosition(AIMovement.Shared().GetNextState(state, action).GetAsVec())) 
                 legal_actions.Add(action);
             }
         }
         return legal_actions;
     }
     
+    
+    private bool IsTileAtPosition(Vector3 worldPosition)
+    {
+        Vector3Int cellPosition = _bordersGrid.WorldToCell(worldPosition);
+        return _bordersGrid.HasTile(cellPosition);
+    }
 
     public void load_qvalue_dict()
     {

@@ -11,7 +11,7 @@ public class ToxicSurfaceBehaivor : MonoBehaviour
     {
         if (col.gameObject.CompareTag(PLAYER_TAG))
         {
-            GameManager.Shared().RespawnPlayer();
+            GameManager.Shared().RespawnPlayer(true);
         }
     }
 }

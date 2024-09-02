@@ -9,7 +9,8 @@ public class RelocatePlayer : MonoBehaviour
     {
         Location1, Location2, Location3 ,Location4 ,Location5, Location6, Location7, Location8, Location9,Location10,
         Location11, Location12, Location13 ,Location14 ,Location15, Location16, Location17, Location18, Location19,
-        Location20, Location21, Location22, Location23 ,Location24
+        Location20, Location21, Location22, Location23 ,Location24,Location25, Location26, Location27, Location28, 
+        Location29,Location30
     }
 
     public StartingLoc startingLocation;

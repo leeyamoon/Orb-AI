@@ -1,46 +1,20 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 
 public class AIHeuristic : MovementParent
 {
-    public enum XMovement
-    {
-        Left, Mid, Right
-    }
-
-    public enum YMovement
-    {
-        Up, Mid, Down
-    }
-    
-    private const float EPSILON = 0.1f;
-    private const string AUDIO_TAG = "Audio";
-    private const string WALL_TAG = "Wall";
-    private const string BOING = "Boing";
-    private const float THRESHOLD_FOR_INITIAL_MOVEMENT = 10f;
-
-    [SerializeField] private float iterationTime;
-    
-    private Camera _mainCam;
-    private Rigidbody2D _rigidbody;
-    
-    private float _forceRange;
-
-    private float _curGravity;
-
-    private float _goalBalloonSize;
-    private float _totalMouseMovementX;
-    private bool shouldAllowMovement = false;
-    private float _lastTimeTouchedWall = 0f;
-    private soundManager _soundManager;
     private static AIHeuristic _self;
     
-    // HERE HEURISTIC
-    [Header("Heuristic"), SerializeField] private GridLayout grid;
+    [Header("Heuristic"), SerializeField] private Tilemap bordersGrid;
+
+    private Dictionary<string, float> _flowDict;
+    
 
 
     private void Awake()
@@ -62,15 +36,79 @@ public class AIHeuristic : MovementParent
         _balloonSizeCur = 1;
         _goalBalloonSize = _balloonSizeCur;
         _lastTimeTouchedWall = Time.time;
+        _flowDict = new Dictionary<string, float>();
         PreScan();
         StartCoroutine(AIUpdate());
     }
 
     private void PreScan()
     {
-        //TODO ADD
+        PlayerState endState = new PlayerState(-370, 193);
+        Queue<PlayerState> fringe = new Queue<PlayerState>();
+        HashSet<string> visited = new HashSet<string>();
+        float firstValue = 2000;
+        _flowDict[StateToString(endState)] = firstValue;
+        visited.Add(StateToString(endState));
+        fringe.Enqueue(endState);
+        while (fringe.Count > 0)
+        {
+            PlayerState cur = fringe.Dequeue();
+            string stateAsStr = StateToString(cur);
+            var nextStates = GetLegalActions(cur);
+            foreach (var state in nextStates)
+            {
+                var nextAsString = StateToString(state);
+                if (!visited.Contains(nextAsString))
+                {
+                    visited.Add(nextAsString);
+                    fringe.Enqueue(state);
+                    _flowDict[nextAsString] = _flowDict[stateAsStr] - 1f;
+                }
+            }
+        }
+        save_qvalue_dict();
     }
     
+    public void save_qvalue_dict()
+    {
+        List<KeyValuePair<string, float>> kvpList = new List<KeyValuePair<string, float>>();
+        foreach (var kvp in _flowDict)
+        {
+            kvpList.Add(new KeyValuePair<string, float>(kvp.Key, kvp.Value));
+        }
+        string json = JsonUtility.ToJson(new SerializationWrapper<string, float>(kvpList));
+        SaveStringToFile(json, "FlowDict.txt");
+    }
+    
+    void SaveStringToFile(string content, string fileName)
+    {
+        string path = Application.persistentDataPath + "/" + fileName;
+        File.WriteAllText(path, content);
+        Debug.Log("File saved to: " + path);
+    }
+    
+    private List<PlayerState> GetLegalActions(PlayerState state)
+    {
+        List<PlayerState> legal_actions = new List<PlayerState>();
+        var x_movemoent = Enum.GetValues(typeof(AIMovement.XMovement));
+        var y_movemoent = Enum.GetValues(typeof(AIMovement.YMovement));
+        foreach (AIMovement.XMovement x_move in x_movemoent)
+        {
+            foreach (AIMovement.YMovement y_move in y_movemoent)
+            {
+                var cur_state = GetNextState(state, new PlayerAction(x_move, y_move));
+                if(!IsTileAtPosition(state.GetAsVec())) 
+                    legal_actions.Add(cur_state);
+            }
+        }
+        return legal_actions;
+    }
+    
+    private bool IsTileAtPosition(Vector3 worldPosition)
+    {
+        Vector3Int cellPosition = bordersGrid.WorldToCell(worldPosition);
+        return bordersGrid.HasTile(cellPosition);
+    }
     
     private void Update()
     {
@@ -102,107 +140,9 @@ public class AIHeuristic : MovementParent
         _moveVertical = 0;
     }
     
-
-    private void ForceChangeWithSize()
+    public string StateToString(PlayerState state)
     {
-        float curForce = -_minForceAmount + _yAxisForceAmount * _gravityCurve.Evaluate((_balloonSizeCur - _minBalloonSize)/
-                                                                   (_maxBalloonSize-_minBalloonSize)) * _gravityRange;
-        _rigidbody.AddForce(new Vector2(0, curForce * Time.deltaTime), ForceMode2D.Force);
+        return "(" + state.posX + ", " + state.posY + ")";
     }
-
-
-    private void ChangeBalloonSizeAI(YMovement state)
-    {
-        switch (state)
-        {
-            case YMovement.Up:
-                _goalBalloonSize = _maxBalloonSize;
-                break;
-            case YMovement.Down:
-                _goalBalloonSize = _minBalloonSize;
-                break;
-            default:
-                _goalBalloonSize = (_maxBalloonSize + _minBalloonSize) / 2;
-                break;
-        }
-        StartCoroutine(StepToGoalSizeAI());
-    }
-    
-    
-    private IEnumerator StepToGoalSizeAI()
-    {
-        while (Math.Abs(_goalBalloonSize - _balloonSizeCur) >= EPSILON)
-        {
-            if (_goalBalloonSize -_balloonSizeCur < -EPSILON)
-                _balloonSizeCur -= Time.deltaTime * iterationTime * 2;
-            else
-                _balloonSizeCur += Time.deltaTime * iterationTime * 2;
-            transform.localScale = Vector3.one * _balloonSizeCur;
-            yield return null;
-        }
-    }
-
-    private void ResizeAndMove(XMovement stateX, YMovement stateY)
-    {
-        ChangeBalloonSizeAI(stateY);
-        NewAxisMovement(stateX);
-    }
-
-
-    private void NewAxisMovement(XMovement stateX)
-    /* Movement on X axis*/
-    {
-        float speedScale;
-        switch (stateX)
-        {
-            case XMovement.Left:
-                speedScale = -30;
-                break;
-            case XMovement.Right:
-                speedScale = 30;
-                break;
-            default:
-                speedScale = 0;
-                break;
-        }
-        float horizontalSpeed = _horizontalSpeed * speedScale;
-        _moveHorizontal = horizontalSpeed;
-    }
-
-    #region Audio
-
-        private void playTouchSound(Collision2D col)
-        {
-            if (col.gameObject.CompareTag(WALL_TAG))
-            {
-                if (Math.Abs(_lastTimeTouchedWall - Time.time) < EPSILON)
-                {
-                    _lastTimeTouchedWall = Time.time;
-                    return;
-                }
-                _lastTimeTouchedWall = Time.time;
-                _soundManager.PlayEffect(_soundManager.Touch);
-            }
-        }
-    
-        private void OnCollisionEnter2D(Collision2D col)
-        {
-            playTouchSound(col);
-        }
-    
-        private void OnCollisionStay2D(Collision2D collision)
-        {
-            playTouchSound(collision);
-        }
-    
-        private void OnTriggerEnter2D(Collider2D col)
-        {
-            if (col.gameObject.CompareTag(BOING))
-            {
-                _soundManager.PlayEffect(_soundManager.Boing);
-            }
-        }
-
-    #endregion
 
 }

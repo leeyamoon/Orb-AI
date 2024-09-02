@@ -94,7 +94,7 @@ public class GameManager : MonoBehaviour
         spawnPointIndex = newIndex;
     }
     
-    public void RespawnPlayer()
+    public void RespawnPlayer(bool isLoss)
     {
         if(_isRespawning)
             return;
@@ -104,9 +104,10 @@ public class GameManager : MonoBehaviour
         ball.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         playerDissolve.Dissolve();
         //New For AI
-        _lostAmount++;
+        if(isLoss)
+            _lostAmount++;
         RewardBehavior.Shared().OnDeathCall();
-        AIMovement.Shared().RestartUpdate();
+        //AIMovement.Shared().RestartUpdate();
         UpdateTextFields();
         //End New For AI
         ball.transform.DOMove(savePoints[spawnPointIndex].position, respawnTime)

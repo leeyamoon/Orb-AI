@@ -45,6 +45,7 @@ public class FadeWhenTouch : MonoBehaviour
             yield return null;
         }
         yield return new WaitForSeconds(timeToFade +0.5f);
+        AIMovement.Shared().FinalSave();
         endingMenu.SetActive(true);
     }
 }
