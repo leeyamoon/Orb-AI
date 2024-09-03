@@ -57,6 +57,7 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
         timeText.text = "Time: " + Math.Round(Time.time, 2);
+        winText.text = "Respawn: " + spawnPointIndex;
     }
 
     private void Start()
@@ -106,6 +107,7 @@ public class GameManager : MonoBehaviour
         //New For AI
         if(isLoss)
             _lostAmount++;
+        print(spawnPointIndex + " I WANNA DIE");
         RewardBehavior.Shared().OnDeathCall();
         //AIMovement.Shared().RestartUpdate();
         UpdateTextFields();

@@ -77,39 +77,7 @@ public class AIMovement : MovementParent
         // qAgent.save_qvalue_dict();
     }
 
-    // aStar Search
-    // private IEnumerator AIUpdate()
-    // {
-    //     //RewardBehavior.Shared().Start();
-    //     while (true)
-    //     {
-    //         var current_state = get_state();
-    //         var goal =  RewardBehavior.Shared().allGoalsTransform[RewardBehavior.Shared()._curIndex].position;
-    //         // float numIter = Vector2.Distance(new Vector2(current_state.posX, current_state.posY),goal) / 4 + 3;
-    //         float numIter = 5;
-    //         AStar aStar = new AStar(get_state(), tilemap, numIter);
-    //         List<PlayerAction> tempActionsArr = aStar.Search(RewardHeurisroc).Actions;
-    //         foreach (var action in tempActionsArr)
-    //         {
-    //             yield return new WaitWhile(() => isChangingSize);
-    //             var move = action;
-    //             ResizeAndMove(move.moveX, move.moveY);
-    //             if (RewardBehavior.Shared().allToxics.Min(x => x.Distance(RewardBehavior.Shared()._playerCollider).distance) < 10)
-    //             {
-    //                 numIter = 2;
-    //                 break;
-    //             }
-    //             yield return new WaitForSeconds(iterationTime);
-    //             current_state = get_state();
-    //             // var goal =  RewardBehavior.Shared().allGoalsTransform[RewardBehavior.Shared()._curIndex].position;
-    //             if(IsPositionsClose(new Vector2(current_state.posX, current_state.posY), goal))
-    //             {
-    //                 print("Got Close");
-    //                 break;
-    //             }
-    //         }
-    //     }
-    // }
+   
 
     private IEnumerator AutoSave()
     {
