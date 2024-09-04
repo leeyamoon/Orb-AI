@@ -122,7 +122,7 @@ public class RewardBehavior : MonoBehaviour
         return pathReward;
     }
 
-    private float LossToxic()
+    public float LossToxic()
     {
         var activeToxic = allToxics.Where(x => x.gameObject.activeSelf);
         var minDist = activeToxic.Min(x => x.Distance(_playerCollider).distance);

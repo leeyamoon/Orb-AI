@@ -5,6 +5,8 @@ using System.IO;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using System.Linq;
+using Unity.Mathematics;
 using Random = UnityEngine.Random;
 
 
@@ -17,6 +19,7 @@ public class AIHeuristic : MovementParent
     private Dictionary<string, float> _flowDict;
 
     private List<PlayerAction> _allActions;
+    private List<Vector2> _lastPositions;
     
 
 
@@ -33,6 +36,7 @@ public class AIHeuristic : MovementParent
         _goalBalloonSize = _balloonSizeCur;
         _lastTimeTouchedWall = Time.time;
         _flowDict = new Dictionary<string, float>();
+         _lastPositions = new List<Vector2>();
         LoadAllActions();
         PreScan();
         StartCoroutine(AIUpdate());
@@ -58,7 +62,7 @@ public class AIHeuristic : MovementParent
         PlayerState endState = new PlayerState(-370, 193);
         Queue<PlayerState> fringe = new Queue<PlayerState>();
         HashSet<string> visited = new HashSet<string>();
-        float firstValue = 2000;
+        float firstValue = 3000;
         _flowDict[StateToString(endState)] = firstValue;
         visited.Add(StateToString(endState));
         fringe.Enqueue(endState);
@@ -136,15 +140,56 @@ public class AIHeuristic : MovementParent
     }
 
     private IEnumerator AIUpdate()
-    {
+    {   
+        int IterNum = 1;
+        double counter = 0;
         while (true)
-        {
+        {   
+            // Debug.Log($"search numer {counter+1}");
+            if (GetLocationVariance() < 5 || RewardBehavior.Shared().LossToxic() > 8)
+            {
+                // _lastPositions.Clear();
+                IterNum = 1;
+            }
+            AStar aStar = new AStar(get_state(), bordersGrid, IterNum, counter * IterNum);
+            List<PlayerAction> moves = aStar.Search(Heuristic).Actions;
             yield return new WaitWhile(() => isChangingSize);
-            var move = GetHeuristicMove();
-            //print(move.moveX + "  " + move.moveY);
-            ResizeAndMove(move.moveX, move.moveY);
+            foreach (var move in moves)
+            {
+                // var move = GetHeuristicMove();
+                //print(move.moveX + "  " + move.moveY);
+                ResizeAndMove(move.moveX, move.moveY);
+                AddLastPos();
+            }
             yield return new WaitForSeconds(iterationTime);
+            counter = counter + 1;
+            IterNum = 1;
         }
+    }
+
+    private void AddLastPos()
+    {
+        if (_lastPositions.Count == 20)
+        {
+            _lastPositions.Remove(_lastPositions[0]);
+        }
+        _lastPositions.Add(get_state().GetAsVec());
+    }
+
+    private float GetLocationVariance()
+    {   
+        if (_lastPositions.Count < 5)
+        {
+            return 10;
+        }
+        Vector2 avgPos = new Vector2(_lastPositions.Average(x=>x.x),_lastPositions.Average(x=>x.y));
+        List<float> variances = new List<float>();
+        foreach (var pos in _lastPositions)
+        {
+            variances.Add(Vector2.Distance(pos, avgPos));
+        }
+        float variance = variances.Average(x=>x);
+        return variance;
     }
     
     // aStar Search
@@ -180,6 +225,13 @@ public class AIHeuristic : MovementParent
     //         }
     //     }
     // }
+    private double Heuristic(PlayerState state)
+    {   
+        if(!_flowDict.ContainsKey(StateToString(state)))
+            return 3000;
+        Debug.Log(RewardBehavior.Shared().LossToxic());
+        return 3000 - _flowDict[StateToString(state)] + RewardBehavior.Shared().LossToxic();
+    }
 
     private PlayerAction GetHeuristicMove()
     {
@@ -232,5 +284,4 @@ public class AIHeuristic : MovementParent
     {
         return "(" + state.posX + ", " + state.posY + ")";
     }
-
 }

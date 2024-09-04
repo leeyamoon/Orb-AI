@@ -39,12 +39,13 @@ public class AStar
     private PlayerState StartState;
     private Tilemap _bordersGrid;
     private float num_iter;
-
-    public AStar(PlayerState state, Tilemap bordersGrid, float numIter)
+    private double _startGCost;
+    public AStar(PlayerState state, Tilemap bordersGrid, float numIter, double startGCost)
     {
         StartState = state;
         _bordersGrid = bordersGrid;
         num_iter = numIter;
+        _startGCost = startGCost;
     }
 
 
@@ -52,19 +53,20 @@ public class AStar
     {
         HashSet<string> visited = new HashSet<string>();
         PriorityQueue queue = new PriorityQueue();
-        Node StartNode = new Node(new List<PlayerAction>(), StartState, 0, heuristic(StartState));
+        Node StartNode = new Node(new List<PlayerAction>(), StartState, _startGCost, heuristic(StartState));
         queue.Enqueue(new PriorityItem(StartNode,0));
         int num_step = 0;
-        Node tempNode = new Node(new List<PlayerAction>(), StartState, 0, heuristic(StartState));
-
+        Node tempNode = new Node(new List<PlayerAction>(), StartState, _startGCost, heuristic(StartState));
+        // Debug.Log(queue.Size());
         while (!queue.IsEmpty())
         {
             PriorityItem item = queue.Dequeue();
-            if (num_step > num_iter)  //RewardBehavior.Shared().IsCloseToGoal(item.Node.currentState) || 
+            if (num_step > num_iter)
             {
+                // visited.Clear();
+                queue.Clear();
                 return item.Node;
             }
-            //  Debug.Log($"{queue.Size()} {num_step}");
             foreach (var successor in GetLegalActions(item.Node.currentState))
             {   
                 PlayerState nextSatet = GetNextState(item.Node.currentState, successor);
@@ -73,18 +75,21 @@ public class AStar
                 // {
                 //     continue;
                 // }
-                // print(heuristic(nextSatet));
                 // visited.Add(stateString);
                 List<PlayerAction> copyList = new List<PlayerAction>(item.Node.Actions);
                 copyList.Add(successor);
-                Node successorNode = new Node(copyList, nextSatet, item.Node.GCost + 1, heuristic(nextSatet)); // add penalty for sharp edges
-                double newPriority = item.Node.GCost + 1 + heuristic(nextSatet);
+                var NewCost = item.Node.GCost + 1;
+                var NewHcost = heuristic(nextSatet);
+                Node successorNode = new Node(copyList, nextSatet, NewCost, NewHcost);
+                double newPriority = NewCost + NewHcost;
+                // Debug.Log($"Hueristic: {NewHcost}, Gcost: {NewCost} Priority: {newPriority}");
                 queue.Enqueue(new PriorityItem(successorNode, newPriority));
             }
             num_step++;
             tempNode = item.Node;
-            // Debug.Log($"{num_step} {item.Node.Actions.Count}");
         }
+        // visited.Clear();
+        // queue.Clear();
         return tempNode;
     }
 
@@ -103,8 +108,8 @@ public class AStar
             foreach (AIMovement.YMovement y_move in y_movemovent)
             {
                 var action = new PlayerAction(x_move, y_move);
-                if(!IsTileAtPosition(GetNextState(state, action).GetAsVec())) 
-                    legal_actions.Add(action);
+                // if(!IsTileAtPosition(GetNextState(state, action).GetAsVec())) 
+                legal_actions.Add(action);
             }
         }
         return legal_actions;
@@ -222,7 +227,7 @@ public class PriorityQueue
         return heap.Count == 0;
     }
 
-    public void Restart()
+    public void Clear()
     {
         heap.Clear();
         // heap = new List<PriorityItem>();
