@@ -6,29 +6,6 @@ using UnityEngine;
 
 public class PlayerBehaviour : MovementParent
 {
-    private const float EPSILON = 0.1f;
-    private const string MOUSE_Y = "Mouse Y";
-    private const string MOUSE_X = "Mouse X";
-    private const string AUDIO_TAG = "Audio";
-    private const string WALL_TAG = "Wall";
-    private const string BOING = "Boing";
-    private const float THRESHOLD_FOR_INITIAL_MOVEMENT = 10f; 
-
-
-    private Camera _mainCam;
-    private Rigidbody2D _rigidbody;
-    
-    private float _forceRange;
-
-    private float _curGravity;
-    
-
-    private float _goalBalloonSize;
-    private float _totalMouseMovementX;
-    private bool shouldAllowMovement = false;
-    private float _lastTimeTouchedWall = 0f;
-    private soundManager _soundManager;
-    
     
     private void Awake()
     {
@@ -96,13 +73,6 @@ public class PlayerBehaviour : MovementParent
         _rigidbody.gravityScale = _curGravity;
     }
 
-    private void ForceChangeWithSize()
-    {
-        float curForce = -_minForceAmount + _yAxisForceAmount * _gravityCurve.Evaluate((_balloonSizeCur - _minBalloonSize)/
-                                                                   (_maxBalloonSize-_minBalloonSize)) * _gravityRange;
-        _rigidbody.AddForce(new Vector2(0, curForce * Time.deltaTime), ForceMode2D.Force);
-    }
-
     private void ChangeBalloonSizeWithScroller(float amount)
     {
         _goalBalloonSize += amount * Time.deltaTime * _changeWithScroller;
@@ -141,16 +111,6 @@ public class PlayerBehaviour : MovementParent
         isChangingSize = false;
     }
 
-    public float GetBalloonSize()
-    {
-        return _balloonSizeCur;
-    }
-
-    public void SetBalloonSize(float size)
-    {
-        _balloonSizeCur = size;
-    }
-
     private void NewAxisMovement()
     {
         // Get the mouse position in world coordinates
@@ -165,37 +125,5 @@ public class PlayerBehaviour : MovementParent
 
         // Set the movement direction based on the mouse position
         _moveHorizontal = distanceX > 0 ? horizontalSpeed : -horizontalSpeed;
-    }
-
-    private void playTouchSound(Collision2D col)
-    {
-        if (col.gameObject.CompareTag(WALL_TAG))
-        {
-            if (Math.Abs(_lastTimeTouchedWall - Time.time) < EPSILON)
-            {
-                _lastTimeTouchedWall = Time.time;
-                return;
-            }
-            _lastTimeTouchedWall = Time.time;
-            _soundManager.PlayEffect(_soundManager.Touch);
-        }
-    }
-
-    private void OnCollisionEnter2D(Collision2D col)
-    {
-        playTouchSound(col);
-    }
-
-    private void OnCollisionStay2D(Collision2D collision)
-    {
-        playTouchSound(collision);
-    }
-
-    private void OnTriggerEnter2D(Collider2D col)
-    {
-        if (col.gameObject.CompareTag(BOING))
-        {
-            _soundManager.PlayEffect(_soundManager.Boing);
-        }
     }
 }

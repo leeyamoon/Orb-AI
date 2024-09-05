@@ -28,8 +28,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private PlayerDissolve playerDissolve;
     [SerializeField, MinValue(0), MaxValue(2f)] private float delayBeforeReverseDissolve = 1f;
 
-    [Header("TextFields"), SerializeField] private TextMeshProUGUI winText;
-    [SerializeField] private TextMeshProUGUI lostText;
+    [Header("TextFields"), SerializeField] private TextMeshProUGUI lostText;
     [SerializeField] private TextMeshProUGUI timeText;
 
     private int _stageNumber = 0;
@@ -57,7 +56,6 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
         timeText.text = "Time: " + Math.Round(Time.time, 2);
-        winText.text = "Respawn: " + spawnPointIndex;
     }
 
     private void Start()
@@ -166,7 +164,6 @@ public class GameManager : MonoBehaviour
 
     private void UpdateTextFields()
     {
-        winText.text = "Won: " + _winAmount.ToString();
         lostText.text = "Lost: " + _lostAmount.ToString();
     }
 }
