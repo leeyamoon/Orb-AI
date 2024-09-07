@@ -63,19 +63,12 @@ public class AStar
             PriorityItem item = queue.Dequeue();
             if (num_step > num_iter)
             {
-                // visited.Clear();
                 queue.Clear();
                 return item.Node;
             }
             foreach (var successor in GetLegalActions(item.Node.currentState))
             {   
                 PlayerState nextSatet = GetNextState(item.Node.currentState, successor);
-                // string stateString = StateToStr(nextSatet);
-                // if (visited.Contains(stateString))
-                // {
-                //     continue;
-                // }
-                // visited.Add(stateString);
                 List<PlayerAction> copyList = new List<PlayerAction>(item.Node.Actions);
                 copyList.Add(successor);
                 var NewCost = item.Node.GCost + 1;
@@ -189,23 +182,7 @@ public class PriorityQueue
     }
 
     public void Enqueue(PriorityItem NewItem)
-    {   
-        // if (heap.Count == 0){
-        //     heap.Add(NewItem);
-        //     return;
-        // }
-        // for (int i = 0; i < heap.Count; i++)
-        // {
-        //     if (NewItem.Priority_ < heap[i].Priority_)
-        //     {
-        //         heap.Insert(i, NewItem);
-        //         return;
-        //     }
-        //     if (i == heap.Count-1) {
-        //         heap.Add(NewItem);
-        //         return;
-        //     }
-        // }
+    {
         heap.Add(NewItem);
     }
 
@@ -230,7 +207,6 @@ public class PriorityQueue
     public void Clear()
     {
         heap.Clear();
-        // heap = new List<PriorityItem>();
     }
 
     public int Size()

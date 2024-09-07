@@ -41,6 +41,7 @@ public class RewardTrigger : MonoBehaviour
     private void WhenInsideTheCollider()
     {
         GameManager.Shared().SetCurrentSpawnPoint(spawnIndex);
+        GameManager.Shared().PrintAllCp();
         if (isActivateObjects)
         {
             gameObjectToActivate.SetActive(true);

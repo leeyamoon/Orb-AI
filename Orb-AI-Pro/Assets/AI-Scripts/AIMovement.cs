@@ -61,7 +61,6 @@ public class AIMovement : MovementParent
     {
         qAgent = new QLearningAgent(epsilon, alpha, discount, tilemap);
         // ImportanceSampling ISAgent = new ImportanceSampling(0.1, discount, tilemap);
-        RewardBehavior.Shared().Start();
         // LearnImportanceSampling(20, 100, ISAgent);
         qAgent.load_qvalue_dict();
         StartCoroutine(AutoSave());
@@ -77,8 +76,7 @@ public class AIMovement : MovementParent
         // qAgent.save_qvalue_dict();
     }
 
-   
-
+    
     private IEnumerator AutoSave()
     {
         while (true)
@@ -86,14 +84,13 @@ public class AIMovement : MovementParent
             yield return new WaitForSeconds(60);
             qAgent.save_qvalue_dict();
         }
-        
     }
 
-    public void FinalSave()
+    public void SaveQDict()
     {
         qAgent.save_qvalue_dict();
     }
-
+    
     private IEnumerator AutoRestart()
     {
         while (true)
@@ -103,10 +100,6 @@ public class AIMovement : MovementParent
         }
     }
     
-    private double RewardHeurisroc(PlayerState state)
-    {
-        return RewardBehavior.Shared().L2Reward(state);
-    }
 
     private bool IsPositionsClose(Vector2 x, Vector2 y)
     {
@@ -114,20 +107,13 @@ public class AIMovement : MovementParent
     }
     
 
-    // public void RestartUpdate()  //TODO in Astar
-    // {
-    //     StopCoroutine(curAIUpdate);
-    //     curAIUpdate = AIUpdate();
-    //     StartCoroutine(curAIUpdate);
-    // }
-
     private void q_learning_Step(QLearningAgent agent)
     {
         PlayerState state = get_state();
-        PlayerAction action = curForce == null ? agent.GetAction(state) : curForce.GetForceAction();
-        PlayerState next_state = GetNextState(state, action);
-        float reward = RewardBehavior.Shared().TotalReward(state);
-        agent.update(state, action, next_state, reward);
+        PlayerAction action = curPolicy == null ? agent.GetAction(state) : curPolicy.GetForceAction();
+        PlayerState nextState = GetNextState(state, action);
+        float reward = RewardBehavior.Shared().TotalReward(nextState);
+        agent.update(state, action, nextState, reward);
         ResizeAndMove(action.moveX, action.moveY);
     }
 

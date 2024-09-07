@@ -15,6 +15,7 @@ public class SpawnPointTrigger : MonoBehaviour
 
     private const string PLAYER_TAG = "Player";
     private const string AUDIO_TAG = "Audio";
+    private bool _used;
     private soundManager _soundManager;
 
     private void Awake()
@@ -27,6 +28,7 @@ public class SpawnPointTrigger : MonoBehaviour
         if(animatorToActive == null)
             return;
         animatorToActive.speed = 0;
+        _used = false;
     }
 
     private void OnTriggerEnter2D(Collider2D col)
@@ -42,6 +44,10 @@ public class SpawnPointTrigger : MonoBehaviour
     private void WhenInsideTheCollider(Collider2D other)
     {
         if (!other.CompareTag(PLAYER_TAG)) return;
+        if(_used)
+            return;
+        _used = true;
+        //PrintInfo();
         GameManager.Shared().SetCurrentSpawnPoint(spawnIndex);
         _soundManager.PlayEffect(_soundManager.CheckPoint);
         _soundManager.DecreaseLowPassFilter();
@@ -52,6 +58,10 @@ public class SpawnPointTrigger : MonoBehaviour
             gameObjectToActivate.SetActive(true);
             gameObjectToDeactivate.SetActive(false);
         }
-        Destroy(gameObject);
+    }
+
+    private void PrintInfo()
+    {
+        print(gameObject.name +"  Lost: " + GameManager.Shared().GetLost() + ", Time: " + Time.time);
     }
 }

@@ -27,7 +27,7 @@ public class ForceField : MonoBehaviour
         MovementParent mp = col.GetComponent<MovementParent>();
         if(mp == null)
             return;
-        mp.curForce = this;
+        mp.curPolicy = this;
     }
 
     private void OnTriggerExit2D(Collider2D other)
@@ -37,7 +37,7 @@ public class ForceField : MonoBehaviour
         MovementParent mp = other.GetComponent<MovementParent>();
         if(mp == null)
             return;
-        mp.curForce = null;
+        mp.curPolicy = null;
     }
     
 }

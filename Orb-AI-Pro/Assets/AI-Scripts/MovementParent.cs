@@ -58,7 +58,7 @@ public class MovementParent : MonoBehaviour
     protected float _balloonSizeCur;
     protected float _yAxisForceAmount;
     protected float _minForceAmount;
-    [HideInInspector] public ForceField curForce;
+    [HideInInspector] public ForceField curPolicy;
     #endregion
     
     public void SetStage(StageProperties stage)

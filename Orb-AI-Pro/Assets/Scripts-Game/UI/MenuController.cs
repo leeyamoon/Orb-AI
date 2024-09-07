@@ -47,7 +47,7 @@ public class MenuController : MonoBehaviour
     
     public void QuitGame()
     {
-        SceneManager.LoadScene("Scenes/OpenScreen");
+        Application.Quit();
     }
 
     public void RestartGame()

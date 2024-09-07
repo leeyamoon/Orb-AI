@@ -45,13 +45,13 @@ public class AIHeuristic : MovementParent
     private void LoadAllActions()
     {
         _allActions = new List<PlayerAction>();
-        var x_movemoent = Enum.GetValues(typeof(AIMovement.XMovement));
-        var y_movemoent = Enum.GetValues(typeof(AIMovement.YMovement));
-        foreach (AIMovement.XMovement x_move in x_movemoent)
+        var xMovement = Enum.GetValues(typeof(AIMovement.XMovement));
+        var yMovement = Enum.GetValues(typeof(AIMovement.YMovement));
+        foreach (AIMovement.XMovement xMove in xMovement)
         {
-            foreach (AIMovement.YMovement y_move in y_movemoent)
+            foreach (AIMovement.YMovement yMove in yMovement)
             {
-                var curAction = new PlayerAction(x_move, y_move); ;
+                var curAction = new PlayerAction(xMove, yMove); ;
                 _allActions.Add(curAction);
             }
         }
@@ -141,14 +141,12 @@ public class AIHeuristic : MovementParent
 
     private IEnumerator AIUpdate()
     {   
-        int IterNum = 1;
+        int IterNum = 8;
         double counter = 0;
         while (true)
-        {   
-            // Debug.Log($"search numer {counter+1}");
+        {
             if (GetLocationVariance() < 5 || RewardBehavior.Shared().LossToxic() > 8)
             {
-                // _lastPositions.Clear();
                 IterNum = 1;
             }
             AStar aStar = new AStar(get_state(), bordersGrid, IterNum, counter * IterNum);
@@ -156,14 +154,12 @@ public class AIHeuristic : MovementParent
             yield return new WaitWhile(() => isChangingSize);
             foreach (var move in moves)
             {
-                // var move = GetHeuristicMove();
-                //print(move.moveX + "  " + move.moveY);
                 ResizeAndMove(move.moveX, move.moveY);
                 AddLastPos();
             }
             yield return new WaitForSeconds(iterationTime);
-            counter = counter + 1;
-            IterNum = 1;
+            counter++;
+            IterNum = 8;
         }
     }
 
@@ -192,45 +188,17 @@ public class AIHeuristic : MovementParent
         return variance;
     }
     
-    // aStar Search
-    // private IEnumerator AIUpdate()
-    // {
-    //     //RewardBehavior.Shared().Start();
-    //     while (true)
-    //     {
-    //         var current_state = get_state();
-    //         var goal =  RewardBehavior.Shared().allGoalsTransform[RewardBehavior.Shared()._curIndex].position;
-    //         // float numIter = Vector2.Distance(new Vector2(current_state.posX, current_state.posY),goal) / 4 + 3;
-    //         float numIter = 5;
-    //         AStar aStar = new AStar(get_state(), tilemap, numIter);
-    //         List<PlayerAction> tempActionsArr = aStar.Search(RewardHeurisroc).Actions;
-    //         foreach (var action in tempActionsArr)
-    //         {
-    //             yield return new WaitWhile(() => isChangingSize);
-    //             var move = action;
-    //             ResizeAndMove(move.moveX, move.moveY);
-    //             if (RewardBehavior.Shared().allToxics.Min(x => x.Distance(RewardBehavior.Shared()._playerCollider).distance) < 10)
-    //             {
-    //                 numIter = 2;
-    //                 break;
-    //             }
-    //             yield return new WaitForSeconds(iterationTime);
-    //             current_state = get_state();
-    //             // var goal =  RewardBehavior.Shared().allGoalsTransform[RewardBehavior.Shared()._curIndex].position;
-    //             if(IsPositionsClose(new Vector2(current_state.posX, current_state.posY), goal))
-    //             {
-    //                 print("Got Close");
-    //                 break;
-    //             }
-    //         }
-    //     }
-    // }
+    
     private double Heuristic(PlayerState state)
     {   
         if(!_flowDict.ContainsKey(StateToString(state)))
             return 3000;
-        Debug.Log(RewardBehavior.Shared().LossToxic());
         return 3000 - _flowDict[StateToString(state)] + RewardBehavior.Shared().LossToxic();
+    }
+
+    private double BadHeuristic(PlayerState state)
+    {
+        return RewardBehavior.Shared().L2Reward(state);
     }
 
     private PlayerAction GetHeuristicMove()
@@ -239,12 +207,6 @@ public class AIHeuristic : MovementParent
         var bestAction = new PlayerAction(XMovement.Mid, YMovement.Mid);
         float bestValue = -1000;
         var actions = GetLegalActions(curState);
-        // if (actions.Count == 0)
-        //     return bestAction;
-        // if (Util.FlipCoin(epsilon))
-        // {
-        //     return actions[Random.Range(0,actions.Count)];
-        // }
         foreach (var action in actions)
         {
             string asString = StateToString(GetNextState(curState, action));

@@ -25,13 +25,10 @@ public class RewardBehavior : MonoBehaviour
             _self = this;
         _playerCollider = playerTrans.gameObject.GetComponent<Collider2D>();
         _curIndex = 0;
-    }
-
-    public void Start()
-    {
         lastPositions = new List<Vector2>();
         lowVarPositios = new List<Vector2>();
     }
+    
 
     public static RewardBehavior Shared()
     {
@@ -46,11 +43,6 @@ public class RewardBehavior : MonoBehaviour
     public float SimpleReward()
     {
         var dist = Vector2.Distance(playerTrans.position, allGoalsTransform[_curIndex].position);
-        // var reward =  100 * math.exp(-dist/20);
-        // for (int i = _curIndex + 1; i < allGoalsTransform.Length - 2; i++)
-        // {
-        //     dist +=  Vector2.Distance(allGoalsTransform[i+1].position, allGoalsTransform[i].position);
-        // }
         var reward = 100 / (dist + 1);
         return reward;
     }
@@ -67,7 +59,7 @@ public class RewardBehavior : MonoBehaviour
             dist = dist * 10;
         var GoalsLeft = -pathReward();
         var varLoss = getLocationVarianceLossSearch(state) / 2;
-        Debug.Log($"distnace: {dist}, sharp loss: {shaprLoss}, varLoss: {varLoss}, Goal index: {_curIndex}");
+       // Debug.Log($"distnace: {dist}, sharp loss: {shaprLoss}, varLoss: {varLoss}, Goal index: {_curIndex}");
         return dist + shaprLoss + varLoss;
     }
 
@@ -126,7 +118,6 @@ public class RewardBehavior : MonoBehaviour
     {
         var activeToxic = allToxics.Where(x => x.gameObject.activeSelf);
         var minDist = activeToxic.Min(x => x.Distance(_playerCollider).distance);
-        // return 10 * math.exp(-minDist/10);
         return 80 / (minDist+1);
     }
 
@@ -141,7 +132,18 @@ public class RewardBehavior : MonoBehaviour
             return;
         _curIndex = i;
     }
+    
+    //Exploring Algorithm
+    // public float TotalReward(PlayerState state)
+    // {  
+    //     if (Vector2.Distance(new Vector2(state.posX, state.posY), allGoalsTransform[_curIndex].position) < 5)
+    //     {
+    //         return 100;
+    //     }
+    //     return -1;
+    // }
 
+    // Smart algorithm
     // public float TotalReward(PlayerState state)
     // {
     //     if (lastPositions.Count == 40)
@@ -152,23 +154,18 @@ public class RewardBehavior : MonoBehaviour
     //     lastPositions.Add(state.GetAsVec());
     //     var varLoss = 3 * getLocationVarianceLoss();
     //     if (varLoss > 0){
-    //         Debug.Log($"{pathReward()} {SimpleReward()} {LossToxic()} {varLoss}");
     //         return pathReward() + 3 * SimpleReward() - LossToxic()/2 - varLoss;
     //     }
     //     return pathReward() + SimpleReward() - LossToxic() - varLoss;
     // }
 
+    //Merged algorithm
     public float TotalReward(PlayerState state)
     {   var tl = LossToxic() /4;
         if (Vector2.Distance(new Vector2(state.posX, state.posY), allGoalsTransform[_curIndex].position) < 5)
         {
             return 100 - tl;
         }
-        // if (allToxics.Min(x => x.Distance(_playerCollider).distance) < 2)
-        // {
-        //     return -100;
-        // }
-        Debug.Log($"toxic loss: {tl}, total: {-1-tl}, Goal Name: {allGoalsTransform[_curIndex].name}");
         return -1 - tl;
     }
     
@@ -200,10 +197,5 @@ public class RewardBehavior : MonoBehaviour
         }
         return loss;
     }
-
-
-    public void OnDeathCall()
-    {
-        print("AI");
-    }
+    
 }

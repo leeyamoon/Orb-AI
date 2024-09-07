@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Cinemachine;
 using DG.Tweening;
 using MyBox;
@@ -39,6 +40,21 @@ public class GameManager : MonoBehaviour
     
     private static int _winAmount = 0;
     private static int _lostAmount = 0;
+
+    #region For Testing And Info
+
+    private List<float> _lstOfTime;
+    private List<int> _lstOfLost;
+
+    public void PrintAllCp()
+    {
+        _lstOfLost.Add(_lostAmount);
+        _lstOfTime.Add(Time.time);
+        print("Time: [" + string.Join(", ", _lstOfTime) + "]");
+        print("Lost: [" + string.Join(", ", _lstOfLost) + "]");
+    }
+    
+    #endregion
     
 
     private void Awake()
@@ -52,17 +68,20 @@ public class GameManager : MonoBehaviour
         toxicFillMaterial.color = Color.black;
         playerMaterial.color = Color.black;
     }
+    
+    private void Start()
+    {
+        ball.SetStage(GetCurrentStage());
+        StartCoroutine(FadeOutBlackScreen());
+        _lstOfLost = new List<int>();
+        _lstOfTime = new List<float>();
+    }
 
     private void Update()
     {
         timeText.text = "Time: " + Math.Round(Time.time, 2);
     }
-
-    private void Start()
-    {
-        ball.SetStage(GetCurrentStage());
-        StartCoroutine(FadeOutBlackScreen());
-    }
+    
 
     public StageProperties GetCurrentStage()
     {
@@ -102,14 +121,9 @@ public class GameManager : MonoBehaviour
         _isRespawning = true;
         ball.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         playerDissolve.Dissolve();
-        //New For AI
         if(isLoss)
             _lostAmount++;
-        print(spawnPointIndex + " I WANNA DIE");
-        RewardBehavior.Shared().OnDeathCall();
-        //AIMovement.Shared().RestartUpdate();
         UpdateTextFields();
-        //End New For AI
         ball.transform.DOMove(savePoints[spawnPointIndex].position, respawnTime)
             .OnComplete(() =>
             {
@@ -146,6 +160,9 @@ public class GameManager : MonoBehaviour
             fadeScreen.color = new Color(0, 0, 0, alpha);
             yield return null;
         }
+
+        if (AIMovement.Shared() != null)
+            AIMovement.Shared().SaveQDict();
         fadeScreen.gameObject.SetActive(false);
     }
 
@@ -153,7 +170,6 @@ public class GameManager : MonoBehaviour
     {
         _lostAmount++;
         UpdateTextFields();
-        RewardBehavior.Shared().OnDeathCall();
     }
 
     public void IncreaseWon()
@@ -165,5 +181,10 @@ public class GameManager : MonoBehaviour
     private void UpdateTextFields()
     {
         lostText.text = "Lost: " + _lostAmount.ToString();
+    }
+
+    public int GetLost()
+    {
+        return _lostAmount;
     }
 }
