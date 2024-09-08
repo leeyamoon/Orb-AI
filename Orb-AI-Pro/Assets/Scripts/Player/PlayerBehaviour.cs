@@ -20,28 +20,7 @@ public class PlayerBehaviour : MovementParent
         _goalBalloonSize = _balloonSizeCur;
         _lastTimeTouchedWall = Time.time;
     }
-
-    public void SetStage(StageProperties stage)
-    {
-        ChangeBalloonSizeOverTime(stage.minSize);
-        AdvanceToStage(stage);
-    }
-
-    public void AdvanceToStage(StageProperties stage)
-    {
-        _minBalloonSize = stage.minSize;
-        _maxBalloonSize = stage.maxSize;
-        _verticalSpeed = stage.verticalSpeed;
-        _horizontalSpeed = stage.horizontalSpeed;
-        _maxGravity = stage.maxGravity;
-        _minGravity = stage.minGravity;
-        _gravityRange = _maxGravity - _minGravity;
-        _scaleSpeed = stage.scaleSpeed;
-        _changeWithScroller = stage.changeWithScroller;
-        _gravityCurve = stage.gravityCurve;
-        _yAxisForceAmount = stage.yAxisForceAmount;
-        _minForceAmount = stage.minForceAmount;
-    }
+    
 
     private void Update()
     {
@@ -66,12 +45,6 @@ public class PlayerBehaviour : MovementParent
         _moveVertical = 0;
     }
     
-    private void GravityChangeWithSize()
-    {
-        _curGravity = _minGravity + _gravityCurve.Evaluate((_maxBalloonSize-_balloonSizeCur)/
-                                                           (_maxBalloonSize-_minBalloonSize))*_gravityRange;
-        _rigidbody.gravityScale = _curGravity;
-    }
 
     private void ChangeBalloonSizeWithScroller(float amount)
     {
@@ -96,14 +69,7 @@ public class PlayerBehaviour : MovementParent
         ChangeBalloonSizeWithScroller(Input.mouseScrollDelta.y);
         NewAxisMovement();
     }
-
-    private void ChangeBalloonSizeOverTime(float size)
-    {
-        isChangingSize = true;
-        Vector3 targetScale = new Vector3(size, size, size);
-        transform.DOScale(targetScale, 1f).SetEase(Ease.InOutQuad).
-            OnComplete(()=>OnScaleComplete(size));
-    }
+    
 
     private void OnScaleComplete(float size)
     {

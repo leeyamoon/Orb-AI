@@ -33,8 +33,6 @@ public class soundManager : MonoBehaviour
     [SerializeField] private AudioHighPassFilter BGHighPassFilter; 
     private const float LOW_PASS_DECREASE_SPEED = 100f;
     private const float START_BG_HIGH_PASS = 500f;
-    private bool isFadeInActive = false;
-    private bool isFadeOutActive = false;
 
     private void Awake()
     {

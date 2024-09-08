@@ -33,7 +33,6 @@ public class ImportanceSampling
         for (int i=0;  i < episode_size; i++)
         {
             PlayerAction currentAction = GetAction(currentState);
-            break;
             float reward = RewardBehavior.Shared().TotalReward(currentState);
             var Touple = (first: currentState, second: currentAction, third: reward);
             episode.Add(Touple);
