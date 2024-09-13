@@ -58,12 +58,12 @@ public class RewardBehavior : MonoBehaviour
         if (allToxics.Min(x => x.Distance(_playerCollider).distance) < 3)
             dist = dist * 10;
         var GoalsLeft = -pathReward();
-        var varLoss = getLocationVarianceLossSearch(state) / 2;
+        var varLoss = GetLocationVarianceLossSearch(state) / 2;
        // Debug.Log($"distnace: {dist}, sharp loss: {shaprLoss}, varLoss: {varLoss}, Goal index: {_curIndex}");
         return dist + shaprLoss + varLoss;
     }
 
-    public float getLocationVarianceLossSearch(PlayerState state)
+    public float GetLocationVarianceLossSearch(PlayerState state)
     {
         if (lastPositions.Count == 40)
         {
@@ -152,11 +152,11 @@ public class RewardBehavior : MonoBehaviour
     //         lastPositions.Remove(first);    
     //     } 
     //     lastPositions.Add(state.GetAsVec());
-    //     var varLoss = 3 * getLocationVarianceLoss();
+    //     var varLoss = GetLocationVarianceLoss();
     //     if (varLoss > 0){
     //         return pathReward() + 3 * SimpleReward() - LossToxic()/2 - varLoss;
     //     }
-    //     return pathReward() + SimpleReward() - LossToxic() - varLoss;
+    //     return pathReward() + SimpleReward() - LossToxic() - 3*varLoss;
     // }
 
     //Merged algorithm
@@ -169,7 +169,7 @@ public class RewardBehavior : MonoBehaviour
         return -1 - tl;
     }
     
-    public float getLocationVarianceLoss()
+    public float GetLocationVarianceLoss()
     {
         Vector2 avgPos = new Vector2(lastPositions.Average(x=>x.x),lastPositions.Average(x=>x.y));
         List<float> variances = new List<float>();
