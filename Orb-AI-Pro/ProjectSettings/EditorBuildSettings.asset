@@ -11,13 +11,13 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Examples/OpenScreen.unity
     guid: 6fd99736ffbe62b4aa5dca91a6960b64
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Game-Heuristic.unity
     guid: e62dafb1d8876a141bf4ac49cdf9f145
   - enabled: 0
     path: Assets/Scenes/Game-Play.unity
     guid: 965c9a4ca25364040af1609ddd571ce6
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/Game-Random.unity
     guid: 7b58854d3caa1c640938a59148ce9ba4
   m_configObjects: {}

@@ -110,7 +110,8 @@ public class AIMovement : MovementParent
     private void q_learning_Step(QLearningAgent agent)
     {
         PlayerState state = get_state();
-        PlayerAction action = curPolicy == null ? agent.GetAction(state) : curPolicy.GetForceAction();
+        PlayerAction action =  agent.GetAction(state);
+        UpdateEnvironment(ref action);
         PlayerState nextState = GetNextState(state, action);
         float reward = RewardBehavior.Shared().TotalReward(nextState);
         agent.update(state, action, nextState, reward);

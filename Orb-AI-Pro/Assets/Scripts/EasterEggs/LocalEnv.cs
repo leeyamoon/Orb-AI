@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ForceField : MonoBehaviour
+public class LocalEnv : MonoBehaviour
 {
     [SerializeField] private MovementParent.XMovement xMove;
     [SerializeField] private MovementParent.YMovement yMove;
@@ -15,7 +15,7 @@ public class ForceField : MonoBehaviour
         _action = new PlayerAction(xMove, yMove);
     }
 
-    public PlayerAction GetForceAction()
+    public PlayerAction GetAction()
     {
         return _action;
     }

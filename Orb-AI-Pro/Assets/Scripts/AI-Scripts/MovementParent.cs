@@ -58,7 +58,7 @@ public class MovementParent : MonoBehaviour
     protected float _balloonSizeCur;
     protected float _yAxisForceAmount;
     protected float _minForceAmount;
-    [HideInInspector] public ForceField curPolicy;
+    [HideInInspector] public LocalEnv curPolicy;
     #endregion
     
     public void SetStage(StageProperties stage)
@@ -206,6 +206,12 @@ public class MovementParent : MonoBehaviour
 
         // Return the new state with updated positions
         return new PlayerState(newPosX, newPosY);
+    }
+
+    protected void UpdateEnvironment(ref PlayerAction action)
+    {
+        if (curPolicy != null)
+            action = curPolicy.GetAction();
     }
     
     
